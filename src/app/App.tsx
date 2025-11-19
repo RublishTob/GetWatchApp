@@ -1,0 +1,31 @@
+import {ReduxProvider} from "./providers/ReduxProvider";
+import {Navigation} from "./navigation/Navigation";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {View,Text,StyleSheet} from 'react-native'
+import {COLOR} from '@shared/constants/colors'
+import { ScreenProvider } from "@/shared/hooks/ScreenContext";
+
+export const App = () => {
+    return (
+        <ReduxProvider> 
+            <SafeAreaProvider>
+                <SafeAreaView style={styles.container} edges={['top','left']}>
+                  <ScreenProvider>
+                    <Navigation/>
+                  </ScreenProvider>
+                </SafeAreaView>
+            </SafeAreaProvider>
+        </ReduxProvider>
+    );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLOR.selectSecondary,
+  },
+  text: {
+    fontSize: 24,
+  },
+});
