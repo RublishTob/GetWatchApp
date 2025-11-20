@@ -26,6 +26,7 @@ const clientsSlice = createSlice({
   reducers: {
     addClientLocal: adapter.addOne,
     updateClientLocal: adapter.upsertOne,
+    updateClientFull: adapter.setOne, 
     removeClientLocal: adapter.removeOne,
     selectClientId(state, action: { payload: string | null }) { (state as any).selectedId = action.payload; },
   },
