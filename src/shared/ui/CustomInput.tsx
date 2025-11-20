@@ -7,7 +7,7 @@ import { useState } from "react";
         return (
             <View style={[styles.infoClient, style]}>
                 <TextInput 
-                    style={[styles.iput]} 
+                    style={[styles.iput,{color:COLOR.mainTextColor}]} 
                     value={value} 
                     multiline 
                     scrollEnabled
@@ -28,6 +28,7 @@ import { useState } from "react";
             width: '100%',
             height:'100%',
             borderRadius: 10,
+            fontSize:16,
             margin:5,
             textAlignVertical: 'center',
         },

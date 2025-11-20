@@ -7,11 +7,12 @@ import {ClientInfo} from "@/entities/Client";
 interface SelectClientProp{
     item: Client,
     handlePress?:(id:number)=>void,
+    pressToShowInfo?:()=>void,
     selectId?:number|null,
     style?:ViewStyle
 }
 
-export const SelectClient = ({selectId = null, handlePress, item, style}:SelectClientProp) =>{
+export const SelectClient = ({selectId = null, handlePress: pressShowHighlight, pressToShowInfo,  item, style}:SelectClientProp) =>{
 
         const [isSelected,setSelected] = useState(false);
 
@@ -31,14 +32,14 @@ export const SelectClient = ({selectId = null, handlePress, item, style}:SelectC
         },[selectId, item.id]);
 
         const onHandlePress = useCallback(() => {
-                handlePress?.(item.id);
-        },[item, handlePress]);
+                pressShowHighlight?.(item.id);
+        },[item, pressShowHighlight]);
 
         return (
                 <TouchableOpacity onPress={onHandlePress} style={[styles.infoClient, style, isSelected && styles.selectedInfoClient]}>
                     <ClientInfo style={{width:"50%"}} item={item} isSelected = {isSelected}/>
                     {isSelected && (
-                            <Button style={{width:"30%", height:"50%"}} text="открыть" colorButton="#116a86ff" colorText="white"/>
+                            <Button style={{width:"30%", height:"50%"}} onPress={pressToShowInfo} text="открыть" colorButton="#116a86ff" colorText="white"/>
                     )}
                 </TouchableOpacity>
         );

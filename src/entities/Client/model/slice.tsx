@@ -17,6 +17,7 @@ export const createOneClient = createAsyncThunk("client/fetch", async(payload:Pa
 const initialState = adapter.getInitialState({
   loading: false as boolean,
   error: null as string | null,
+  selectedId: null as number|null,
 });
 
 
@@ -28,7 +29,7 @@ const clientsSlice = createSlice({
     updateClientLocal: adapter.upsertOne,
     updateClientFull: adapter.setOne, 
     removeClientLocal: adapter.removeOne,
-    selectClientId(state, action: { payload: string | null }) { (state as any).selectedId = action.payload; },
+    selectClientId(state, action: { payload: number | null }) { (state as any).selectedId = action.payload; },
   },
   extraReducers: (builder) => {
     builder

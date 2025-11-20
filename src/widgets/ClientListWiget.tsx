@@ -5,6 +5,9 @@ import { COLOR } from "@shared/constants/colors"
 import { SelectClient } from "@/features";
 import { stylesCommon } from "@shared/styles/commonStyles";
 import { selectFilteredClients } from "@/features/model/filterClients/selectors/selectedFilterdClients";
+import { useDispatch } from "react-redux";
+import { selectClientId } from "@/entities/Client/model/slice";
+import { useNavigationApp } from "@/features/model/useNavigationApp";
 
 interface ClientListProp{
     height:number,
@@ -14,9 +17,16 @@ interface ClientListProp{
 export const ClientListWidget = ({height,width}:ClientListProp) => {
   const [highlightId, setHighlightId] = useState<number | null>(null);
   const allClients = useSelector(selectFilteredClients);
+  const dispatch = useDispatch();
+  const navigation = useNavigationApp();
 
   const handleGetId = (id: number) => {
     setHighlightId((prev) => (prev === id ? null : id));
+  };
+
+  const handleShowClientInfo = () => {
+    dispatch(selectClientId(highlightId));
+    navigation.navigate("ClientInfo");
   };
 
   useEffect(() => {
@@ -55,6 +65,7 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
             selectId={highlightId}
             item={item}
             handlePress={handleGetId}
+            pressToShowInfo={handleShowClientInfo}
           />
         )}
         keyExtractor={(item) => item.id.toString()}
