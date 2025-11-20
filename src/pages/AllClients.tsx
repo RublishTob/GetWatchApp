@@ -24,7 +24,7 @@ export const AllClients = () => {
         <View style={{ height: height, width: width }}>
             <SearchClientsFeature />
             <ClientListWidget width={width} height={height * 0.7} />
-            <View style={{ flexDirection: 'row', width: width, height: height * 0.2, paddingRight: 30, paddingLeft: 30, backgroundColor: COLOR.primary, alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: "#48465eff" }}>
+            <View style={{ flexDirection: 'row', width: width, height: height * 0.2, paddingRight: 30, paddingLeft: 30, backgroundColor: COLOR.primary, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: "#48465eff" }}>
                 <Button text="Меню" style={{ width: 70, height: 40 }} onPress={()=>navigator.navigate("Home")}/>
                 <Button text="Фильтр" style={{ width: 70, height: 40 }} onPress={() => setShowFilters((prev) => !prev)} />
             </View>
