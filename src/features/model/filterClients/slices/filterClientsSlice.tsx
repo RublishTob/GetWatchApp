@@ -43,9 +43,17 @@ export const filterClientsSlice = createSlice({
       state.warrantyOnly = !state.warrantyOnly;
     },
 
+    resetAllFilters(state){
+      state.conflictOnly = false;
+      state.acceptedOnly = false;
+      state.onDeliveryOnly = false;
+      state.warrantyOnly = false;
+    },
+
     setPriceFrom(state, a: PayloadAction<number | null>) {
       state.priceFrom = a.payload;
     },
+
     setPriceTo(state, a: PayloadAction<number | null>) {
       state.priceTo = a.payload;
     },
@@ -68,6 +76,7 @@ export const {
   toggleAccepted,
   toggleWarranty,
   toggleOnDelivery,
+  resetAllFilters,
   setPriceFrom,
   setPriceTo,
   setDateFrom,

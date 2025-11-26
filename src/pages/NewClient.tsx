@@ -1,8 +1,9 @@
 import { useDispatch } from "react-redux";
 import ClientForm, { ClientFormFields } from "@features/ui/ClientForm";
-import { addClientLocal } from "@/entities/Client/model/slice";
+import { addClientLocal, createOneClient } from "@/entities/Client/model/slice";
 import { useDateConverter } from "@shared/hooks/useDataConverter";
 import { Alert } from "react-native"
+import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 
 const defaultValues: ClientFormFields = {
     clientName: "",
@@ -21,11 +22,11 @@ const defaultValues: ClientFormFields = {
 };
 
 export default function CreateClientScreen() {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { toTimestamp } = useDateConverter();
 
     const handleCreate = (data: ClientFormFields) => {
-        dispatch(addClientLocal({
+        dispatch(createOneClient({
             id: Date.now(),
             ...data,
             dateIn: toTimestamp(data.dateIn),

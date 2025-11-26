@@ -7,7 +7,7 @@ import { useState } from "react";
         return (
             <View style={[styles.infoClient, style]}>
                 <TextInput 
-                    style={[styles.iput,{color:COLOR.mainTextColor}]} 
+                    style={[styles.input,{color:COLOR.mainTextColor}]} 
                     value={value} 
                     multiline 
                     scrollEnabled
@@ -23,7 +23,7 @@ import { useState } from "react";
             backgroundColor: COLOR.primary,
             flexDirection:"row",
         },
-        iput: {
+        input: {
             backgroundColor: COLOR.secondary,
             width: '100%',
             height:'100%',

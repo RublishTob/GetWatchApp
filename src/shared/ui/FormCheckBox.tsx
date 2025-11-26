@@ -15,9 +15,9 @@ interface FormInputPorps <T extends FieldValues> extends ModernCheckboxProps{
 export const FormCheckBox = <T extends FieldValues>({ style = null, control, label, rules, name, ...checkBoxProps}:FormInputPorps<T>) => {
     return (
         <Controller name={name} control={control} rules={rules} render={({ field: { onChange, value }, fieldState: { error } }) => (
-            <View style={style}>
+            <View style={[style]}>
                 {error && (<Text style={[{color:"red"},style]}>{error?.message}</Text>)}
-                {label && <Text style={{color:COLOR.mainTextColor}}>{label}</Text>}
+                {label && <Text style={{color:COLOR.mainTextColor, marginLeft:10, marginBottom:10}}>{label}</Text>}
                 <Checkbox value = {value} onValueChange={onChange}{...checkBoxProps}/>
             </View>
         )}/>

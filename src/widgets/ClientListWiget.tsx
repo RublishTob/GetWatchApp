@@ -6,7 +6,9 @@ import { SelectClient } from "@/features";
 import { stylesCommon } from "@shared/styles/commonStyles";
 import { selectFilteredClients } from "@/features/model/filterClients/selectors/selectedFilterdClients";
 import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 import { selectClientId } from "@/entities/Client/model/slice";
+import { fetchClientsInfo } from "@/entities/Client/model/slice";
 import { useNavigationApp } from "@/features/model/useNavigationApp";
 
 interface ClientListProp{
@@ -17,7 +19,7 @@ interface ClientListProp{
 export const ClientListWidget = ({height,width}:ClientListProp) => {
   const [highlightId, setHighlightId] = useState<number | null>(null);
   const allClients = useSelector(selectFilteredClients);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigationApp();
 
   const handleGetId = (id: number) => {
@@ -30,8 +32,10 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
   };
 
   useEffect(() => {
-    console.log(allClients.length);
-  }, [allClients]);
+  dispatch(fetchClientsInfo());
+  console.log(allClients.length);
+
+}, []);
 
   if (allClients.length === 0) {
     return (

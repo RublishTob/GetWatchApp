@@ -28,10 +28,11 @@ export interface ClientFormFields {
 interface Props {
     initialValues: ClientFormFields;
     onSubmit: (data: ClientFormFields) => void;
+    onDelete?: () => void;
     submitText: string;
 }
 
-const ClientForm = ({ initialValues, onSubmit, submitText }: Props) => {
+const ClientForm = ({ initialValues, onSubmit,  onDelete, submitText }: Props) => {
     const navigation = useNavigationApp();
 
     const { control, handleSubmit, reset, formState: { isValid, isSubmitting } } =
@@ -41,31 +42,34 @@ const ClientForm = ({ initialValues, onSubmit, submitText }: Props) => {
             defaultValues: initialValues,
         });
 
-    useEffect(()=>{
-        return()=>{
-            reset()
-        }
-    },[])
-
     return (
         <View style={styles.container}>
             <View style={styles.containerClient}>
                 <ScrollView>
+                    
                     <FormInput style={styles.form} control={control} name="clientName" label="Имя" placeholder="Введите имя" />
                     <FormInput style={styles.form} control={control} name="lastname" label="Фамилия" placeholder="Введите фамилию" />
                     <FormInput style={styles.form} control={control} name="numberOfPhone" label="Номер телефона" placeholder="Введите номер" />
                     <FormInput style={styles.form} control={control} name="price" label="Цена" placeholder="Введите цену" />
+                    <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
+                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="accepted" label="Принять в работу" />
+                    </View>
                     <FormInput style={styles.form} control={control} name="nameOfWatch" label="Название часов" placeholder="Введите название часов" />
-                    <FormInput style={styles.form} control={control} name="reason" label="Причина" placeholder="Причина поломки" />
+                    <FormInput style={styles.form} control={control} name="reason" label="Причина поломки" placeholder="Причина поломки" />
                     <FormInput style={styles.form} control={control} name="viewOfWatch" label="Внешний вид" placeholder="Опишите" />
                     <FormInput style={styles.form} control={control} name="warrantyMonths" label="Гарантия(мес)" placeholder="Гарантия" />
 
-                    <FormCheckBox style={styles.form} control={control} name="accepted" label="Принять в работу" />
-                    <FormCheckBox style={styles.form} control={control} name="isConflictClient" label="Конфликтный" />
-                    <FormCheckBox style={styles.form} control={control} name="hasWarranty" label="Есть гарантия" />
+                    <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
+                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="isConflictClient" label="Конфликтный" />
+                    </View>
+                    <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
+                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="hasWarranty" label="Есть гарантия" />
+                    </View>
 
                     <FormDatePicker style={styles.form} control={control} name="dateIn" label="Дата приемки" />
                     <FormDatePicker style={styles.form} control={control} name="dateOut" label="Дата выдачи" />
+
+                    {onDelete && <Button text="Удалить" colorButton="#721414ff" onPress={onDelete}/>}
                 </ScrollView>
             </View>
 
@@ -94,7 +98,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#2E2D3D",
     },
     form: {
-        margin: 10
+        margin: 10,
     },
     menu: {
         flexDirection: "row",
@@ -104,12 +108,12 @@ const styles = StyleSheet.create({
         backgroundColor: "#16171D",
         borderTopWidth: 1,
         borderTopColor: "#48465eff",
-        height: "24%",
+        height: "10%",
         gap: 20,
     },
     containerClient: {
         columnGap: 5,
-        height: "80%",
+        height: "40%",
         backgroundColor: "#16171D",
     },
     text: {
@@ -125,10 +129,10 @@ const styles = StyleSheet.create({
         width:'18%',
         height:'40%',
         borderRadius: 60,
-        backgroundColor: "rgba(163, 78, 9, 0.87)",
+        backgroundColor: "rgba(103, 147, 165, 0.87)",
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#C0392B",
+        shadowColor: "#f31800ff",
         shadowOpacity: 0.8,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 0 },

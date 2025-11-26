@@ -8,12 +8,14 @@ import { useNavigationApp } from "@features/model/useNavigationApp";
 import { toggleOnDelivery } from "@/features/model/filterClients/slices/filterClientsSlice";
 import { selectAllClients } from "@entities/Client/model/selectors"
 import { COLOR } from "@/shared/constants/colors";
+import { fetchClientsInfo } from "@/entities/Client/model/slice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 
 export const MenuWidget = () => {
   const navigator = useNavigationApp();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const clients:Client[] = useSelector(selectAllClients);
+  const clients:Client[] = useAppSelector(selectAllClients);
 
    const scale = useRef(new Animated.Value(1)).current;
 
@@ -24,6 +26,10 @@ export const MenuWidget = () => {
         Animated.timing(scale, { toValue: 1, duration: 1000, useNativeDriver: true }),
       ])
     ).start();
+  }, []);
+
+    useEffect(() => {
+    dispatch(fetchClientsInfo());
   }, []);
 
   const hasDelivery = useMemo(() => {

@@ -7,17 +7,24 @@ import { useDispatch } from "react-redux";
 import { COLOR } from "@/shared/constants/colors"
 import { SearchClientsFeature } from "@/features/ui/SearchClientsFeature"
 import { FilterClientsFeature } from "@/features/ui/FilterClientsFeature"
-import { resetFilters } from "@/features/model/filterClients/slices/filterClientsSlice";
+import { resetAllFilters } from "@/features/model/filterClients/slices/filterClientsSlice";
+import { setSearchQuery } from "@features/model/searchClient/slices/searchClientsSlice"
 import { useNavigationApp } from "@features/model/useNavigationApp";
+import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 
 export const AllClients = () => {
     const { width, height } = useScreen();
     const [showFilters, setShowFilters] = useState(false);
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const navigator = useNavigationApp();
 
     useEffect(() => {
-        return () => { dispatch(resetFilters()) }
+        dispatch(resetAllFilters())
+        dispatch(setSearchQuery(""))
+        return () => { 
+            dispatch(resetAllFilters()) 
+            dispatch(setSearchQuery(""))
+        }
     }, [])
 
     return (
