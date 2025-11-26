@@ -1,43 +1,65 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {AllClients, NewClient, Home, ClientInfo} from "@/pages";
+import { AllClients, NewClient, Home, ClientInfo } from "@/pages";
+import { NavigationContainer } from "@react-navigation/native";
+import { BackHandler } from "react-native";
+import { navigationRef } from "@/app/navigation/navigationRef";
 
 export type RootStackParamList = {
-  AllClients: undefined;
+  AllClients: { presetFilter?: string } | undefined;
   NewClient: undefined;
   Home: undefined;
-  ClientInfo:undefined
+  ClientInfo: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const Navigation = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false, headerBackButtonMenuEnabled:false }}>
-        <Stack.Screen
-          name="AllClients"
-          component={AllClients}
-          options={{ title: "AllClients" }}
-        />
-        <Stack.Screen
-          name="NewClient"
-          component={NewClient}
-          options={{ title: "NewClient" }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{ title: "Home" }}
-        />
-        <Stack.Screen
-          name="ClientInfo"
-          component={ClientInfo}
-          options={{ title: "ClientInfo" }}
-        />
-      </Stack.Navigator>
 
+  useEffect(() => {
+    const backMap: Record<string, string | null> = {
+      ClientInfo: "AllClients",
+      AllClients: "Home",
+      Home: null, // выходим из приложения
+    };
+
+    const onBackPress = () => {
+      if (!navigationRef.isReady()) return false;
+
+      const current = navigationRef.getCurrentRoute()?.name;
+      if (!current) return false;
+
+      const target = backMap[current];
+
+      // null → разрешаем выход
+      if (target === null) return false;
+
+      // если есть куда перейти
+      if (target) {
+        navigationRef.navigate(target as any);
+        return true;
+      }
+
+      // fallback
+      navigationRef.navigate("Home");
+      return true;
+    };
+
+    const sub = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+    return () => sub.remove();
+  }, []);
+
+  return (
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="AllClients" component={AllClients} />
+        <Stack.Screen name="NewClient" component={NewClient} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="ClientInfo" component={ClientInfo} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

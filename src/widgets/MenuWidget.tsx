@@ -63,8 +63,7 @@ export const MenuWidget = () => {
             <TouchableOpacity
             style={{flexDirection:"row", columnGap:10, alignItems:"center", justifyContent:"center", width:"100%", height:'100%'}}
               onPress={() => {
-                dispatch(toggleOnDelivery());
-                navigator.navigate("AllClients");
+                navigator.navigate("AllClients",{ presetFilter: "onDelivery" });
               }}
             >
               <View style={styles.deliveryIconButton}>

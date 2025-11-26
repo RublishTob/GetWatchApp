@@ -75,8 +75,8 @@ const ClientForm = ({ initialValues, onSubmit,  onDelete, submitText }: Props) =
 
             <View style={styles.menu}>
                     <View style={{rowGap:15}}>
-                        <Button  fontSizeText={12} text="Все клиенты" onPress={() => navigation.navigate("AllClients")}/>
-                        <Button  fontSizeText={12} text="Меню" onPress={() => navigation.navigate("Home")}/>
+                        <Button style={{width:"100%", height:"40%"}}  fontSizeText={12} text="Все клиенты" onPress={() => navigation.navigate("AllClients")}/>
+                        <Button style={{width:"100%", height:"40%"}} fontSizeText={12} text="Меню" onPress={() => navigation.navigate("Home")}/>
                     </View>
                 <Button style={styles.roundedButton} text="Сброс" onPress={() => reset(initialValues)} />
                 <Button
@@ -102,18 +102,19 @@ const styles = StyleSheet.create({
     },
     menu: {
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-start",
         paddingBottom:20,
+        paddingTop:20,
         justifyContent: "center",
         backgroundColor: "#16171D",
         borderTopWidth: 1,
         borderTopColor: "#48465eff",
-        height: "10%",
+        height: "25%",
         gap: 20,
     },
     containerClient: {
         columnGap: 5,
-        height: "40%",
+        height: "75%",
         backgroundColor: "#16171D",
     },
     text: {

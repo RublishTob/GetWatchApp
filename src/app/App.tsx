@@ -3,10 +3,16 @@ import {Navigation} from "./navigation/Navigation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {View,Text,StyleSheet} from 'react-native'
+import {useEffect} from 'react'
 import {COLOR} from '@shared/constants/colors'
 import { ScreenProvider } from "@/shared/hooks/ScreenContext";
+import { useImmersiveMode} from "@/app/hooks/useImmersiveMode";
+import { NavigationContainer, useNavigationState } from "@react-navigation/native";
+import { useNavigationApp } from "@features/model/useNavigationApp"
+import { BackHandler } from "react-native";
 
 export const App = () => {
+    useImmersiveMode();
     return (
         <ReduxProvider> 
             <SafeAreaProvider>
