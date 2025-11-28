@@ -1,5 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View,TouchableOpacity, StyleSheet, Animated, Easing, Image } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Easing,
+  Image
+} from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export interface ModernDatePickerProps {
@@ -7,57 +15,92 @@ export interface ModernDatePickerProps {
   onChange?: (date: Date) => void;
 }
 
-const DatePicker: React.FC<ModernDatePickerProps> = ({ value, onChange}) => {
+const DatePicker: React.FC<ModernDatePickerProps> = ({ value, onChange }) => {
   const [date, setDate] = useState<Date | undefined>(value);
+  const [text, setText] = useState<string>(value ? formatDate(value) : "");
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    if (date) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }).start();
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // -------- FORMATTING --------
+  function formatDate(date: Date) {
+    const dd = date.getDate().toString().padStart(2, "0");
+    const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+    const yyyy = date.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;
+  }
+
+  function parseDate(str: string): Date | null {
+    const parts = str.split(".");
+    if (parts.length !== 3) return null;
+
+    const [dd, mm, yyyy] = parts.map(n => parseInt(n, 10));
+
+    if (!dd || !mm || !yyyy) return null;
+    if (mm < 1 || mm > 12) return null;
+    if (dd < 1 || dd > 31) return null;
+
+    const d = new Date(yyyy, mm - 1, dd);
+    if (isNaN(d.getTime())) return null;
+
+    return d;
+  }
+
+  // -------- INPUT MASKING --------
+  const handleInput = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+
+    let result = "";
+    if (digits.length <= 2) result = digits;
+    else if (digits.length <= 4) result = `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    else result = `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4, 8)}`;
+
+    setText(result);
+
+    const parsed = parseDate(result);
+    if (parsed) {
+      setDate(parsed);
+      onChange?.(parsed);
     }
-  }, [date,fadeAnim]);
-
-  const handleConfirm = (selectedDate: Date) => {
-    setDate(selectedDate);
-    setPickerVisible(false);
-    if (onChange) {onChange(selectedDate);}
   };
 
-  const handleCancel = () => setPickerVisible(false);
-
-  const formattedDate = date
-    ? date.toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" })
-    : "";
+  // -------- DATE PICKER --------
+  const handleConfirm = (selectedDate: Date) => {
+    setDate(selectedDate);
+    const formatted = formatDate(selectedDate);
+    setText(formatted);
+    setPickerVisible(false);
+    onChange?.(selectedDate);
+  };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => setPickerVisible(true)} activeOpacity={0.8}>
-          <Image source={require('D:/GetWatchApp/recourses/icons/iconsCalendar.png')} style={{width:20,height:20,marginRight:10}}></Image>
-          <Animated.Text style={[styles.buttonText, !date && { color: "#aaa" }, { opacity: fadeAnim }]}>
-          {formattedDate || "Не выбрано"}
-        </Animated.Text>
-      </TouchableOpacity>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          keyboardType="numeric"
+          value={text}
+          onChangeText={handleInput}
+          placeholder="ДД.ММ.ГГГГ"
+          maxLength={10}
+        />
+
+        <TouchableOpacity onPress={() => setPickerVisible(true)}>
+          <Image
+            source={require("D:/GetWatchApp/recourses/icons/iconsCalendar.png")}
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      </View>
 
       <DateTimePickerModal
         isVisible={isPickerVisible}
         mode="date"
         onConfirm={handleConfirm}
-        onCancel={handleCancel}
+        onCancel={() => setPickerVisible(false)}
         date={date || new Date()}
-        display={'calendar'}
+        display="calendar"
       />
     </View>
   );
@@ -65,25 +108,30 @@ const DatePicker: React.FC<ModernDatePickerProps> = ({ value, onChange}) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 10,
+    marginVertical: 10
   },
-  button: {
+
+  inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 14,
     paddingHorizontal: 16,
     backgroundColor: "#f0f4f8",
     borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 5
   },
-  buttonText: {
+
+  textInput: {
+    flex: 1,
     fontSize: 16,
-    color: "#5b6b6dff",
+    color: "#5b6b6dff"
   },
+
+  icon: {
+    width: 20,
+    height: 20,
+    marginLeft: 10
+  }
 });
 
-export default DatePicker
+export default DatePicker;
