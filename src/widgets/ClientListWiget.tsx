@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { COLOR } from "@shared/constants/colors"
 import { SelectClient } from "@/features";
 import { stylesCommon } from "@shared/styles/commonStyles";
-import { selectFilteredClients } from "@/features/model/filterClients/selectors/selectedFilterdClients";
+import { selectFilteredClients } from "@/features/model/selectedFilterdClients";
 import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 import { selectClientId } from "@/entities/Client/model/slice";

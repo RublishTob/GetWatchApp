@@ -11,7 +11,12 @@ import { COLOR } from "@/shared/constants/colors";
 import { fetchClientsInfo } from "@/entities/Client/model/slice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 
-export const MenuWidget = () => {
+interface MenuListProp{
+    height:number,
+    width:number
+}
+
+export const MenuWidget = ({height,width}:MenuListProp) => {
   const navigator = useNavigationApp();
   const dispatch = useAppDispatch();
 
@@ -53,13 +58,13 @@ export const MenuWidget = () => {
     });
   }, [clients]);
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,{width:width, height:height}]}>
       <View style={styles.menu}>
-        <Image source={require('D:/GetWatchApp/recourses/icons/logo.png')} style={{ width: 100, height: 100 }}></Image>
+        <Image source={require('D:/GetWatchApp/recourses/icons/logo.png')} style={{ width: "37%", height: "15%", aspectRatio: 1 }}></Image>
         <Button style={styles.button} text={"Все клиенты"} onPress={() => navigator.navigate("AllClients")} />
         <Button style={styles.button} text={"Новый клиент"} onPress={() => navigator.navigate("NewClient")} />
         {hasDelivery &&
-          <Animated.View style={{ transform: [{ scale }], flexDirection:"row", columnGap:5, alignItems:"center", justifyContent:"center", width:100, height:50}}>
+          <Animated.View style={{ transform: [{ scale }], flexDirection:"row", columnGap:5, alignItems:"center", justifyContent:"center", width:"67%", height:"13%"}}>
             <TouchableOpacity
             style={{flexDirection:"row", columnGap:10, alignItems:"center", justifyContent:"center", width:"100%", height:'100%'}}
               onPress={() => {
@@ -69,7 +74,7 @@ export const MenuWidget = () => {
               <View style={styles.deliveryIconButton}>
                 <Image
                   source={require("D:/GetWatchApp/recourses/icons/Accept.png")}
-                  style={{ width: "50%", height: "50%", tintColor: "white" }}
+                  style={{ width: "50%", height: "50%", tintColor: "white", aspectRatio: 1 }}
                 />
               </View>
                 <Text adjustsFontSizeToFit numberOfLines={5} style={{color:COLOR.mainTextColor, width:"70%", height:"60%"}}>Есть часы на выдачу, нажмите чтобы посмотреть</Text>
@@ -88,15 +93,16 @@ const styles = StyleSheet.create({
     backgroundColor:"#16171D",
   },
   menu:{
-    height:500,
-    width:500,
+    height:"70%",
+    width:"60%",
     alignItems:"center",
     justifyContent: "center",
-    rowGap:20,
+    rowGap:10,
+    padding:10
   },
   button:{
-    width:"40%",
-    height:"18%"
+    width:"70%",
+    height:"15%"
   },
   logo:{
     height:100,

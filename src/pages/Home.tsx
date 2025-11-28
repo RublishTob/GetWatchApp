@@ -1,8 +1,10 @@
 import { MenuWidget } from "@/widgets/MenuWidget";
+import { useScreen } from "@/shared/hooks/useScreenSize";
 
 const Home = () => {
+  const { width, height } = useScreen();
   return(
-    <MenuWidget/>
+    <MenuWidget width={width} height={height}/>
   );
 };
 

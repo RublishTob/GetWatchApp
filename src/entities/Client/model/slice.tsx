@@ -6,7 +6,11 @@ import { getClients } from "@/data/db";
 import {apiDb} from "@/data/api"
 
 const adapter = createEntityAdapter<Client>({
-  sortComparer: (a, b) => a.clientName.localeCompare(b.clientName),
+  sortComparer: (a, b) => {
+    const dateA = new Date(a.dateIn).getTime();
+    const dateB = new Date(b.dateIn).getTime();
+    return dateB - dateA;
+  },
 });
 
 export const fetchClientsInfo = createAsyncThunk(

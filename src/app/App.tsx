@@ -29,7 +29,7 @@ export const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLOR.selectSecondary,
+    backgroundColor: COLOR.primary,
   },
   text: {
     fontSize: 24,

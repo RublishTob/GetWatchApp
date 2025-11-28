@@ -21,7 +21,7 @@ const IconFilter = (
         text,
         colorButton = "#48465eff",
         active,
-        fontSizeText = 10,
+        fontSizeText = 8,
         colorText = "#89c8e2ff",
         onPress,
         pathToImage
@@ -37,8 +37,8 @@ const IconFilter = (
                     active&&{ opacity: 0.2 }
                 ]} 
                 onPress={onPress}>
-                <Image style={{width:"100%", height:"100%"}} source={pathToImage}></Image>
-                {text?.trim() && <Text style = {{fontSize:fontSizeText,color:colorText, marginTop:5}} adjustsFontSizeToFit numberOfLines={1}>{text}</Text>}
+                <Image style={{width:"90%", height:"100%", aspectRatio: 1}} source={pathToImage}></Image>
+                {text?.trim() && <Text style = {{fontSize:fontSizeText,color:colorText, marginTop:5}} numberOfLines={2}>{text}</Text>}
             </TouchableOpacity>
     );
 };
@@ -47,8 +47,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
-        padding:2,
         rowGap:5,
+        width:"90%", 
+        height:"100%"
     },
 });
 
