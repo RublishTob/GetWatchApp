@@ -8,16 +8,17 @@ import Button from "@/shared/ui/Button";
 import { FormInput } from "@/shared/ui/FormInput";
 import { FormCheckBox } from "@/shared/ui/FormCheckBox";
 import FormDatePicker from "@/shared/ui/FormDatePicker";
+import {PhoneInput} from "@shared/ui/FormNumberOfPhone"
 
 export interface ClientFormFields {
     clientName: string;
     lastname: string;
     numberOfPhone: string;
-    price: number;
+    price: string;
     nameOfWatch: string;
     reason: string;
     viewOfWatch: string;
-    warrantyMonths: number;
+    warrantyMonths: string;
     dateIn: Date;
     dateOut: Date;
     hasWarranty: boolean;
@@ -49,7 +50,7 @@ const ClientForm = ({ initialValues, onSubmit,  onDelete, submitText }: Props) =
                     
                     <FormInput style={styles.form} control={control} name="clientName" label="Имя" placeholder="Введите имя" />
                     <FormInput style={styles.form} control={control} name="lastname" label="Фамилия" placeholder="Введите фамилию" />
-                    <FormInput style={styles.form} control={control} name="numberOfPhone" label="Номер телефона" placeholder="Введите номер" />
+                    <PhoneInput style={styles.form} control={control} name="numberOfPhone" label="Номер телефона" placeholder="Введите номер телефона" />
                     <FormInput style={styles.form} control={control} name="price" label="Цена" placeholder="Введите цену" />
                     <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
                         <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="accepted" label="Принять в работу" />

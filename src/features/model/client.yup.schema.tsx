@@ -15,9 +15,8 @@ export const clientYupSchema = yup.object({
     .required("Введите номер телефона"),
     
   price: yup
-    .number()
+    .string()
     .typeError("Стоимость должна быть числом")
-    .positive("Стоимость должна быть положительной")
     .required("Укажите стоимость"),
   nameOfWatch: yup
     .string()
@@ -32,8 +31,13 @@ export const clientYupSchema = yup.object({
     .required("Опишите внешний вид часов"),
 
   warrantyMonths: yup
-    .number()
-    .typeError("Введите количество месяцев гарантии числом")
+    .string()
+    .matches(/^\d*$/, "Только числа")
+    .test("is-valid", "Введите число месяцев", value => {
+      if (value === "" || value === undefined) return true;
+      const num = Number(value);
+      return num >= 0;
+    })
     .required("Укажите гарантийный срок"),
 
   dateIn: yup

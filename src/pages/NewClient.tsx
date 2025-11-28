@@ -9,11 +9,11 @@ const defaultValues: ClientFormFields = {
     clientName: "",
     lastname: "",
     numberOfPhone: "",
-    price: 0,
+    price: "",
     nameOfWatch: "",
     reason: "",
     viewOfWatch: "",
-    warrantyMonths: 0,
+    warrantyMonths: "",
     dateIn: new Date(),
     dateOut: new Date(),
     hasWarranty: false,
@@ -29,6 +29,8 @@ export default function CreateClientScreen() {
         dispatch(createOneClient({
             id: Date.now(),
             ...data,
+            warrantyMonths: Number(data.warrantyMonths || 0), 
+            price: Number(data.warrantyMonths || 0), 
             dateIn: toTimestamp(data.dateIn),
             dateOut: toTimestamp(data.dateOut),
         }));
