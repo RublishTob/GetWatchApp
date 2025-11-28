@@ -5,12 +5,14 @@ export interface ModernCheckboxProps {
   size?: number;
   value?: boolean;
   onValueChange?: (value: boolean) => void;
+  color?:string;
 }
 
 export const Checkbox: React.FC<ModernCheckboxProps> = ({
   size = 40,
   value = false,
   onValueChange,
+  color = "#4A90E2",
 }) => {
   const [checked, setChecked] = useState(value);
   const animation = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -55,7 +57,7 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
 
   const backgroundColor = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ["#E0E0E0", "#4A90E2"],
+    outputRange: ["#E0E0E0", color],
   });
 
   const rippleScale = rippleAnim.interpolate({

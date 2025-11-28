@@ -61,10 +61,10 @@ const ClientForm = ({ initialValues, onSubmit,  onDelete, submitText }: Props) =
                     <FormInput style={styles.form} control={control} name="warrantyMonths" label="Гарантия(мес)" placeholder="Гарантия" />
 
                     <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
-                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="isConflictClient" label="Конфликтный" />
+                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} backgroundColor={"red"} control={control} name="isConflictClient" label="Конфликтный" />
                     </View>
                     <View style={{flexDirection: "row", justifyContent:"flex-end", margin:10}}>
-                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} control={control} name="hasWarranty" label="Есть гарантия" />
+                        <FormCheckBox style={{flexDirection: "row", justifyContent:"flex-end", margin:10, alignItems:"center", columnGap:10}} backgroundColor={"green"} control={control} name="hasWarranty" label="Есть гарантия" />
                     </View>
 
                     <FormDatePicker style={styles.form} control={control} name="dateIn" label="Дата приемки" />
