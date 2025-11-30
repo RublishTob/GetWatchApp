@@ -10,16 +10,17 @@ interface FormInputPorps <T extends FieldValues> extends ModernCheckboxProps{
     rules?:RegisterOptions<T, Path<T>>
     style?:StyleProp<ViewStyle>
     backgroundColor?:string;
+    disabled?:boolean
 }
 
 
-export const FormCheckBox = <T extends FieldValues>({ style = null, control, label, rules, name, backgroundColor, ...checkBoxProps}:FormInputPorps<T>) => {
+export const FormCheckBox = <T extends FieldValues>({ style = null, control, label, rules, name, disabled = false, backgroundColor, ...checkBoxProps}:FormInputPorps<T>) => {
     return (
         <Controller name={name} control={control} rules={rules} render={({ field: { onChange, value }, fieldState: { error } }) => (
             <View style={[style]}>
                 {error && (<Text style={[{color:"red"},style]}>{error?.message}</Text>)}
                 {label && <Text style={{color:COLOR.mainTextColor, marginLeft:10, marginBottom:10}}>{label}</Text>}
-                <Checkbox value = {value} color={backgroundColor} onValueChange={onChange}{...checkBoxProps}/>
+                <Checkbox value = {value} color={backgroundColor} disabled={disabled} onValueChange={onChange}{...checkBoxProps}/>
             </View>
         )}/>
 

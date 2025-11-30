@@ -35,7 +35,7 @@ const Button = (
             heightPercent ? { height: heightPercent }: {}, 
             style]} onPress={disabled ? undefined : onPress}>
                         <Text 
-                        style = {{fontSize:fontSizeText,color:colorText, margin:5}}
+                        style = {{fontSize:fontSizeText,color:colorText}}
                         adjustsFontSizeToFit
                         numberOfLines={1}>
                             {text}

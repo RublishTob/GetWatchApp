@@ -49,7 +49,7 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
       </View>
     );
   }
-  const itemHeight = height * 0.2;
+  const itemHeight = height * 0.3;
 
   return (
     <View style={{ height, width }}>

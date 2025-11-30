@@ -278,3 +278,63 @@ export async function importOldJsonClients(oldClients: OldClient[]) {
     await updateClient(newClient); // upsert логика
   }
 }
+
+export async function getClientById(id: number): Promise<Client | null> {
+  if (!db) await initDB();
+
+  const res = await db!.executeSql(`SELECT * FROM Clients WHERE id = ? LIMIT 1`, [id]);
+  const rows = res[0].rows;
+  if (rows.length === 0) return null;
+  const item = rows.item(0);
+  return {
+    id: item.id,
+    clientName: item.clientName,
+    lastname: item.lastname,
+    numberOfPhone: item.numberOfPhone,
+    price: item.price,
+    nameOfWatch: item.nameOfWatch,
+    reason: item.reason,
+    viewOfWatch: item.viewOfWatch,
+    warrantyMonths: item.warrantyMonths,
+    dateIn: item.dateIn,
+    dateOut: item.dateOut,
+    hasWarranty: !!item.hasWarranty,
+    accepted: !!item.accepted,
+    isConflictClient: !!item.isConflictClient,
+  };
+}
+export async function updateClientPartialInDb(data: Partial<Client> & { id: number }) {
+  if (!db) await initDB();
+
+  const existing = (await getClientById(data.id));
+
+  const updated = { ...existing, ...data };
+
+  await db!.executeSql(
+    `
+      UPDATE Clients SET
+        clientName=?, lastname=?, numberOfPhone=?, price=?,
+        nameOfWatch=?, reason=?, viewOfWatch=?, warrantyMonths=?,
+        dateIn=?, dateOut=?, hasWarranty=?, accepted=?, isConflictClient=?
+      WHERE id=?
+    `,
+    [
+      updated.clientName,
+      updated.lastname,
+      updated.numberOfPhone,
+      updated.price,
+      updated.nameOfWatch,
+      updated.reason,
+      updated.viewOfWatch,
+      updated.warrantyMonths,
+      updated.dateIn,
+      updated.dateOut,
+      updated.hasWarranty ? 1 : 0,
+      updated.accepted ? 1 : 0,
+      updated.isConflictClient ? 1 : 0,
+      updated.id
+    ]
+  );
+
+  return updated;
+}

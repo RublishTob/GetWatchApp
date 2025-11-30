@@ -1,9 +1,8 @@
-import { useDispatch } from "react-redux";
+import { Alert } from "react-native";
 import ClientForm, { ClientFormFields } from "@features/ui/ClientForm";
-import { addClientLocal, createOneClient } from "@/entities/Client/model/slice";
+import { createOneClient } from "@/entities/Client/model/slice";
+import { useAppDispatch } from "@/app/store/hook";
 import { useDateConverter } from "@shared/hooks/useDataConverter";
-import { Alert } from "react-native"
-import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 
 const defaultValues: ClientFormFields = {
     clientName: "",
@@ -16,7 +15,7 @@ const defaultValues: ClientFormFields = {
     warrantyMonths: "",
     dateIn: new Date(),
     dateOut: new Date(),
-    hasWarranty: false,
+    hasWarranty: false, // auto
     accepted: false,
     isConflictClient: false,
 };
@@ -26,14 +25,16 @@ export default function CreateClientScreen() {
     const { toTimestamp } = useDateConverter();
 
     const handleCreate = (data: ClientFormFields) => {
-        dispatch(createOneClient({
-            id: Date.now(),
+        const payload = {
             ...data,
-            warrantyMonths: Number(data.warrantyMonths || 0), 
-            price: Number(data.warrantyMonths || 0), 
+            price: Number(data.price),
+            warrantyMonths: Number(data.warrantyMonths),
             dateIn: toTimestamp(data.dateIn),
             dateOut: toTimestamp(data.dateOut),
-        }));
+        };
+
+        dispatch(createOneClient(payload));
+
         Alert.alert("Клиент создан", `${data.clientName} ${data.lastname}`);
     };
 

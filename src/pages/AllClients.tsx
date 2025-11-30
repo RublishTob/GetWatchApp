@@ -35,7 +35,7 @@ export const AllClients = () => {
                 setShowFilters(false);
             }
 
-            return () => {};
+            return () => {dispatch(resetAllFilters());};
         }, [presetFilter])
     );
 
@@ -44,8 +44,9 @@ export const AllClients = () => {
             <SearchClientsFeature />
             <ClientListWidget width={width} height={height * 0.7} />
             <View style={{ flexDirection: 'row', width: width, height: height * 0.3, paddingRight: 30, paddingLeft: 30, paddingTop: 10, columnGap:20, backgroundColor: COLOR.primary, alignItems: "flex-start", justifyContent: "center", borderTopWidth: 1, borderTopColor: "#48465eff" }}>
-                <Button text="Меню" style={{ width: "50%", height: "34%" }} onPress={()=>navigator.navigate("Home")}/>
-                <Button text="Фильтр" style={{ width: "50%", height: "34%" }} onPress={() => setShowFilters((prev) => !prev)} />
+                <Button text="Меню" style={{ width: "30%", height: "34%" }} onPress={()=>navigator.navigate("Home")}/>
+                <Button text="Создать клиента" style={{ width: "30%", height: "34%" }} onPress={()=>navigator.navigate("NewClient")}/>
+                <Button text="Фильтр" style={{ width: "30%", height: "34%" }} onPress={() => setShowFilters((prev) => !prev)} />
             </View>
             <FilterClientsFeature showFilters={showFilters} />
         </View>

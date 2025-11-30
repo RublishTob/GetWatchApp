@@ -6,6 +6,7 @@ export interface ModernCheckboxProps {
   value?: boolean;
   onValueChange?: (value: boolean) => void;
   color?:string;
+  disabled?:boolean
 }
 
 export const Checkbox: React.FC<ModernCheckboxProps> = ({
@@ -13,6 +14,7 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
   value = false,
   onValueChange,
   color = "#4A90E2",
+  disabled = false
 }) => {
   const [checked, setChecked] = useState(value);
   const animation = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -71,7 +73,7 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
   });
 
   return (
-    <TouchableWithoutFeedback onPress={toggle}>
+    <TouchableWithoutFeedback onPress={toggle} disabled={disabled}>
       <Animated.View
         style={[
           styles.container,

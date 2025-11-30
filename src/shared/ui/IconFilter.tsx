@@ -34,7 +34,7 @@ const IconFilter = (
             style={[
                     styles.button, 
                     style,
-                    active&&{ opacity: 0.2 }
+                    active&&{ opacity: 1 }
                 ]} 
                 onPress={onPress}>
                 <Image style={{width:"90%", height:"100%", aspectRatio: 1}} source={pathToImage}></Image>
@@ -49,7 +49,8 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         rowGap:5,
         width:"90%", 
-        height:"100%"
+        height:"100%",
+        opacity: 0.6
     },
 });
 

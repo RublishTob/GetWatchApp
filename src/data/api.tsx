@@ -1,4 +1,4 @@
-import { addClient, updateClient, getClients, deleteClient } from "../data/db";
+import { addClient, updateClient, getClients, deleteClient, updateClientPartialInDb } from "../data/db";
 import { Client } from "@entities/Client";
 
 export const apiDb = {
@@ -14,6 +14,12 @@ export const apiDb = {
   async updateClientInDb(client: Client) {
     await updateClient(client);
     return client;
+  },
+  async updateClientPartialInDb(
+    payload: Partial<Client> & { id: number }
+  ): Promise<Partial<Client> & { id: number }> {
+    const updated = await updateClientPartialInDb(payload);
+    return updated;
   },
 
   async deleteClientInDb(id: number) {

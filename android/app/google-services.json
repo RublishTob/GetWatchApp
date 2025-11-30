@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1097482728923",
+    "firebase_url": "https://getwatch-794cd-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "getwatch-794cd",
+    "storage_bucket": "getwatch-794cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097482728923:android:1a7ecd68ec3ea5c310a3fe",
+        "android_client_info": {
+          "package_name": "com.getwatchapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5B9tCv0ZneCz2Ob9Rst9PZ67Id88-tv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

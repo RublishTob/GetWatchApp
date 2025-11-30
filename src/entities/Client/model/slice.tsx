@@ -1,9 +1,9 @@
-import {createSlice, createAsyncThunk, createEntityAdapter} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
 import * as api from "./api";
 import { Client } from "./types";
 import { initDB } from "@/data/db";
 import { getClients } from "@/data/db";
-import {apiDb} from "@/data/api"
+import { apiDb } from "@/data/api"
 
 const adapter = createEntityAdapter<Client>({
   sortComparer: (a, b) => {
@@ -28,6 +28,13 @@ export const createOneClient = createAsyncThunk(
   }
 );
 
+export const updateClientPartial = createAsyncThunk(
+  "client/updatePartial",
+  async (payload: Partial<Client> & { id: number }) => {
+    return await apiDb.updateClientPartialInDb(payload);
+  }
+);
+
 export const updateOneClient = createAsyncThunk(
   "client/update",
   async (payload: Client) => {
@@ -45,7 +52,7 @@ export const deleteOneClient = createAsyncThunk(
 const initialState = adapter.getInitialState({
   loading: false as boolean,
   error: null as string | null,
-  selectedId: null as number|null,
+  selectedId: null as number | null,
 });
 
 
@@ -55,30 +62,36 @@ const clientsSlice = createSlice({
   reducers: {
     addClientLocal: adapter.addOne,
     updateClientLocal: adapter.upsertOne,
-    updateClientFull: adapter.setOne, 
+    updateClientFull: adapter.setOne,
     removeClientLocal: adapter.removeOne,
     selectClientId(state, action: { payload: number | null }) { (state as any).selectedId = action.payload; },
   },
   extraReducers: (builder) => {
-  builder
-    .addCase(fetchClientsInfo.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    })
-    .addCase(fetchClientsInfo.fulfilled, (state, action) => {
-      adapter.setAll(state, action.payload);
-      state.loading = false;
-    })
-    .addCase(createOneClient.fulfilled, (state, action) => {
-      adapter.addOne(state, action.payload);
-    })
-    .addCase(updateOneClient.fulfilled, (state, action) => {
-      adapter.upsertOne(state, action.payload);
-    })
-    .addCase(deleteOneClient.fulfilled, (state, action) => {
-      adapter.removeOne(state, action.payload);
-    });
-}
+    builder
+      .addCase(fetchClientsInfo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchClientsInfo.fulfilled, (state, action) => {
+        adapter.setAll(state, action.payload);
+        state.loading = false;
+      })
+      .addCase(updateClientPartial.fulfilled, (state, action) => {
+        adapter.updateOne(state, {
+          id: action.payload.id,
+          changes: action.payload,
+        });
+      })
+      .addCase(createOneClient.fulfilled, (state, action) => {
+        adapter.addOne(state, action.payload);
+      })
+      .addCase(updateOneClient.fulfilled, (state, action) => {
+        adapter.upsertOne(state, action.payload);
+      })
+      .addCase(deleteOneClient.fulfilled, (state, action) => {
+        adapter.removeOne(state, action.payload);
+      });
+  }
 });
 
 export default clientsSlice.reducer;
