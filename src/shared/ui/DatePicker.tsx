@@ -88,7 +88,7 @@ const DatePicker: React.FC<ModernDatePickerProps> = ({ value, onChange }) => {
 
         <TouchableOpacity onPress={() => setPickerVisible(true)}>
           <Image
-            source={require("D:/GetWatchApp/recourses/icons/iconsCalendar.png")}
+            source={require("C:/React/GetWatchApp/recourses/icons/iconsCalendar.png")}
             style={styles.icon}
           />
         </TouchableOpacity>

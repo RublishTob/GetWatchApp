@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AllClients, NewClient, Home, ClientInfo } from "@/pages";
+import { AllClients, NewClient, Home, ClientInfo, BackUp } from "@/pages";
 import { NavigationContainer } from "@react-navigation/native";
 import { BackHandler } from "react-native";
 import { navigationRef } from "@/app/navigation/navigationRef";
@@ -10,6 +10,7 @@ export type RootStackParamList = {
   NewClient: undefined;
   Home: undefined;
   ClientInfo: undefined;
+  BackUp: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -59,6 +60,7 @@ export const Navigation = () => {
         <Stack.Screen name="NewClient" component={NewClient} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="ClientInfo" component={ClientInfo} />
+        <Stack.Screen name="BackUp" component={BackUp} />
       </Stack.Navigator>
     </NavigationContainer>
   );

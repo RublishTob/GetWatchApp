@@ -20,10 +20,10 @@ export const FilterClientsFeature = ({showFilters}: FilterProp) => {
 
     return (
         <View style={{ flexDirection: "row", width:"100%", height:'20%', bottom:"20%", position: "absolute", columnGap: 5, backgroundColor: COLOR.primary, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: "#48465eff" }}>
-            <IconFilter onPress={()=>dispatch(toggleConflict())} active={conflictOnly} text="Конфликтный" style={styles.Icon} pathToImage={require("D:/GetWatchApp/recourses/icons/IsConflict.png")} />
-            <IconFilter onPress={()=>dispatch(toggleWarranty())} active={warrantyOnly} text="Еще есть гарантия" style={styles.Icon} pathToImage={require("D:/GetWatchApp/recourses/icons/HasWarranty.png")} />
-            <IconFilter onPress={()=>dispatch(toggleAccepted())} active={acceptedOnly} text="Сейчас в работе" style={styles.Icon} pathToImage={require("D:/GetWatchApp/recourses/icons/Accept.png")} />
-            <IconFilter onPress={()=>dispatch(toggleOnDelivery())} active={onDeliveryOnly} text="Пора выдать" style={styles.Icon} pathToImage={require("D:/GetWatchApp/recourses/icons/Accept.png")} />
+            <IconFilter onPress={()=>dispatch(toggleConflict())} active={conflictOnly} text="Конфликтный" style={styles.Icon} pathToImage={require("C:/React/GetWatchApp/recourses/icons/IsConflict.png")} />
+            <IconFilter onPress={()=>dispatch(toggleWarranty())} active={warrantyOnly} text="Еще есть гарантия" style={styles.Icon} pathToImage={require("C:/React/GetWatchApp/recourses/icons/HasWarranty.png")} />
+            <IconFilter onPress={()=>dispatch(toggleAccepted())} active={acceptedOnly} text="Сейчас в работе" style={styles.Icon} pathToImage={require("C:/React/GetWatchApp/recourses/icons/Accept.png")} />
+            <IconFilter onPress={()=>dispatch(toggleOnDelivery())} active={onDeliveryOnly} text="Пора выдать" style={styles.Icon} pathToImage={require("C:/React/GetWatchApp/recourses/icons/Accept.png")} />
         </View>
     )
 }

@@ -10,9 +10,15 @@ import { useImmersiveMode} from "@/app/hooks/useImmersiveMode";
 import { NavigationContainer, useNavigationState } from "@react-navigation/native";
 import { useNavigationApp } from "@features/model/useNavigationApp"
 import { BackHandler } from "react-native";
+import { configureGoogle } from '@/services/googleAuth';
 
 export const App = () => {
     useImmersiveMode();
+
+    useEffect(()=>{
+      console.log("App is running NOW")
+      configureGoogle()
+    },[])
     return (
         <ReduxProvider> 
             <SafeAreaProvider>

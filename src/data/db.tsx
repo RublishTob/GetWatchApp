@@ -1,6 +1,8 @@
-import clients from "D:/GetWatchApp/newClients.json";
+import clients from "C:/React/GetWatchApp/newClients.json";
 import SQLite from 'react-native-sqlite-storage';
+import {SQLiteDatabase} from 'react-native-sqlite-storage';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RNFS from "react-native-fs";
 
 SQLite.enablePromise(true);
 SQLite.DEBUG(false);
@@ -27,26 +29,106 @@ let db: SQLite.SQLiteDatabase | null = null;
 // -----------------------------
 // INIT DB
 // -----------------------------
+
+
+export async function clearDatabase() {
+  console.log("⚠ Clearing SQL database...");
+
+  if (!db) {
+    db = await SQLite.openDatabase({
+      name: "getwatch.db",
+      location: "default",
+    });
+  }
+
+  // Удаляем данные
+  await db.executeSql("DELETE FROM Clients;");
+
+  // Сбрасываем автоинкремент первичного ключа, чтобы ID шли с 1
+  await db.executeSql("DELETE FROM sqlite_sequence WHERE name='Clients';");
+
+  // Удаляем флаг сидирования
+  await AsyncStorage.removeItem("db_seeded");
+
+  console.log("✔ Database cleared. Ready to reseed.");
+
+  // После этого можно вызывать initDB() или seedDatabase()
+}
+
 SQLite.enablePromise(true);
 
-export async function initDB() {
-  db = await SQLite.openDatabase({
+async function getRealDbPath(): Promise<string> {
+  const db: SQLiteDatabase = await SQLite.openDatabase({
     name: "getwatch.db",
     location: "default",
   });
 
-  await createTables();
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        "PRAGMA database_list;",
+        [],
+        (_, resultSet:any) => {
+          try {
+            const row = resultSet.rows.item(0);
+            console.log("REAL PATH =", row.file);
+            resolve(row.file);
+          } catch (e) {
+            reject(e);
+          }
+        },
+        (_, err:any) => {
+          reject(err);
+          return false;
+        }
+      );
+    });
+  });
+}
 
-  const isSeeded = await AsyncStorage.getItem("db_seeded");
 
-  if (!isSeeded) {
-    console.log("▶ First launch — seeding database...");
-    await seedDatabase();
-    await AsyncStorage.setItem("db_seeded", "true");
-  } else {
-    console.log("✔ DB already seeded");
+export async function initDB(restoreMode = false) {
+
+  if (db) {
+    try { await db.close(); } catch {}
+    db = null;
+  }
+   db = await SQLite.openDatabase({
+     name: "getwatch.db",
+     location: "default",
+   });
+
+   getRealDbPath();
+
+    if (!restoreMode) {
+    await createTables();
+    const isSeeded = await AsyncStorage.getItem("db");
+  
+     if (!isSeeded) {
+       console.log("▶ First launch — seeding database...");
+       await seedDatabase();
+       await AsyncStorage.setItem("db", "true");
+     } else {
+       console.log("✔ DB already seeded");
+     }
   }
 
+
+  return db;
+}
+
+export async function closeDB() {
+  if (!db) return;
+  try {
+    await db.close();
+  } catch (e) {
+    console.warn('closeDB error', e);
+  }
+  db = null;
+}
+
+export function getDbInstance() {
+  if (!db) throw new Error('Database not opened. Call initDB() first.');
   return db;
 }
 
@@ -337,4 +419,100 @@ export async function updateClientPartialInDb(data: Partial<Client> & { id: numb
   );
 
   return updated;
+}
+export async function reopenDatabase() {
+  console.log("🔄 Reopening SQLite database...");
+
+  try {
+    if (db) {
+      console.log("🛑 Closing old DB connection...");
+      await db.close();
+      db = null;
+    }
+  } catch (e) {
+    console.warn("⚠ DB close error (not critical):", e);
+  }
+
+  console.log("📂 Opening new DB connection...");
+
+  db = await SQLite.openDatabase({
+    name: "getwatch.db",
+    location: "default",
+  });
+
+  await createTables();
+
+  console.log("✅ Database reopened successfully.");
+  return db;
+}
+
+export async function restoreDatabaseFromBase64(base64: string): Promise<boolean> {
+  console.log("♻ Restoring database from backup...");
+
+  try {
+    const dbPath = `${RNFS.DocumentDirectoryPath}/getwatch.db`;
+    const tempPath = `${RNFS.DocumentDirectoryPath}/getwatch_restore_${Date.now()}.db`;
+
+    // 1. Пишем во временный файл
+    await RNFS.writeFile(tempPath, base64, "base64");
+
+    const stat = await RNFS.stat(tempPath);
+    if (!stat || Number(stat.size) < 2000) {
+      throw new Error("Backup file is too small — looks corrupted");
+    }
+
+    // 2. Закрываем текущую БД
+    try {
+      if (db) {
+        console.log("🔒 Closing previous DB before restore...");
+        await db.close();
+        db = null;
+      }
+    } catch (e) {
+      console.warn("⚠ Error closing DB (ignored):", e);
+    }
+
+    // 3. Удаляем старый getwatch.db
+    try {
+      await RNFS.unlink(dbPath);
+      console.log("🗑 Old DB removed");
+    } catch {}
+
+    // 4. Переименовываем временный → основной
+    await RNFS.moveFile(tempPath, dbPath);
+    console.log("📁 Backup restored to", dbPath);
+
+    // 5. Открываем БД заново
+    await reopenDatabase();
+
+    console.log("✅ Database restore finished successfully.");
+
+    return true;
+  } catch (err) {
+    console.error("❌ Restore failed:", err);
+    return false;
+  }
+}
+
+export async function logClientsCount() {
+  try {
+    const db = await SQLite.openDatabase({ name: 'getwatch.db', location: 'default' });
+
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT COUNT(*) as count FROM Clients;',
+        [],
+        (_, results) => {
+          const count = results.rows.item(0).count;
+          console.log(`Количество клиентов в базе: ${count}`);
+        },
+        (_, error) => {
+          console.error('Ошибка при подсчёте клиентов:', error);
+          return true;
+        }
+      );
+    });
+  } catch (err) {
+    console.error('Не удалось открыть базу:', err);
+  }
 }

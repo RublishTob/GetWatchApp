@@ -60,9 +60,10 @@ export const MenuWidget = ({height,width}:MenuListProp) => {
   return (
     <View style={[styles.container,{width:width, height:height}]}>
       <View style={styles.menu}>
-        <Image source={require('D:/GetWatchApp/recourses/icons/logo.png')} style={{ width: "37%", height: "15%", aspectRatio: 1 }}></Image>
+        <Image source={require('C:/React/GetWatchApp/recourses/icons/logo.png')} style={{ width: "37%", height: "15%", aspectRatio: 1 }}></Image>
         <Button style={styles.button} text={"Все клиенты"} onPress={() => navigator.navigate("AllClients")} />
         <Button style={styles.button} text={"Новый клиент"} onPress={() => navigator.navigate("NewClient")} />
+        <Button style={styles.button} text={"Резервное копирование"} onPress={() => navigator.navigate("BackUp")} />
         {hasDelivery &&
           <Animated.View style={{ transform: [{ scale }], flexDirection:"row", columnGap:5, alignItems:"center", justifyContent:"center", width:"67%", height:"13%"}}>
             <TouchableOpacity
@@ -73,7 +74,7 @@ export const MenuWidget = ({height,width}:MenuListProp) => {
             >
               <View style={styles.deliveryIconButton}>
                 <Image
-                  source={require("D:/GetWatchApp/recourses/icons/Accept.png")}
+                  source={require("C:/React/GetWatchApp/recourses/icons/Accept.png")}
                   style={{ width: "50%", height: "50%", tintColor: "white", aspectRatio: 1 }}
                 />
               </View>

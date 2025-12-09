@@ -1,27 +1,81 @@
 {
   "project_info": {
-    "project_number": "1097482728923",
-    "firebase_url": "https://getwatch-794cd-default-rtdb.europe-west1.firebasedatabase.app",
-    "project_id": "getwatch-794cd",
-    "storage_bucket": "getwatch-794cd.firebasestorage.app"
+    "project_number": "530790439354",
+    "project_id": "watchapp-5710a",
+    "storage_bucket": "watchapp-5710a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1097482728923:android:1a7ecd68ec3ea5c310a3fe",
+        "mobilesdk_app_id": "1:530790439354:android:03866749e8d73ce40e2583",
         "android_client_info": {
           "package_name": "com.getwatchapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "530790439354-5kt4ts7t1utekdvr47vl5lgu403hgrv7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.getwatchapp",
+            "certificate_hash": "1cfca6f012921b5fc63d93a1b806485b352cfb4f"
+          }
+        },
+        {
+          "client_id": "530790439354-l9qnqq89egi1olkj3c198shc7ga08s9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyD5B9tCv0ZneCz2Ob9Rst9PZ67Id88-tv8"
+          "current_key": "AIzaSyA_7XiT_kM2999lik1gwYFZgb7Zt2n_vyo"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530790439354-l9qnqq89egi1olkj3c198shc7ga08s9r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530790439354:android:071ab6dac63fcd710e2583",
+        "android_client_info": {
+          "package_name": "com.googletest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530790439354-vv4e6mq260nho9dvlk9vu4e1a4a2b988.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.googletest",
+            "certificate_hash": "1cfca6f012921b5fc63d93a1b806485b352cfb4f"
+          }
+        },
+        {
+          "client_id": "530790439354-l9qnqq89egi1olkj3c198shc7ga08s9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_7XiT_kM2999lik1gwYFZgb7Zt2n_vyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530790439354-l9qnqq89egi1olkj3c198shc7ga08s9r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,5 +1,6 @@
 import { addClient, updateClient, getClients, deleteClient, updateClientPartialInDb } from "../data/db";
 import { Client } from "@entities/Client";
+import { restoreDatabaseFromBase64 } from "@/data/db";
 
 export const apiDb = {
   async fetchClientsFromDb(): Promise<Client[]> {
@@ -25,5 +26,9 @@ export const apiDb = {
   async deleteClientInDb(id: number) {
     await deleteClient(id);
     return id;
+  },
+  /** 🔥 ВОССТАНОВЛЕНИЕ ИЗ РЕЗЕРВНОЙ КОПИИ */
+  async restoreFromBackup(base64: string): Promise<boolean> {
+    return await restoreDatabaseFromBase64(base64);
   }
 };
