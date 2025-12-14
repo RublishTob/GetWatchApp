@@ -9,7 +9,7 @@ import { SearchClientsFeature } from "@/features/ui/SearchClientsFeature"
 import { FilterClientsFeature } from "@/features/ui/FilterClientsFeature"
 import { resetAllFilters } from "@/features/model/filterClients/slices/filterClientsSlice";
 import { setSearchQuery } from "@features/model/searchClient/slices/searchClientsSlice"
-import { useNavigationApp } from "@features/model/useNavigationApp";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { toggleOnDelivery } from "@/features/model/filterClients/slices/filterClientsSlice";

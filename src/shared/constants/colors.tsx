@@ -5,5 +5,7 @@ export const COLOR = {
     primary:"#16171D",
     mainTextColor:"rgba(125, 189, 216, 0.87)",
     selectmainTextColor:"rgba(170, 226, 249, 0.87)",
-    orange:"#d4471d"
+    orange:"#d4471d",
+    delete:"#721414ff",
+    blue:"#116a86ff"
 };

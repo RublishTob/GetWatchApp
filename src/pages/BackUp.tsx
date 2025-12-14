@@ -1,7 +1,7 @@
 // BackupControl.tsx
 import React, { useState } from "react";
 import { View, Text, Button, ActivityIndicator, Alert, ScrollView } from "react-native";
-import { useBackup } from "@/services/useBackup"; 
+import { useBackup } from "@/services/googleBackUp/useBackup"; 
 import { fetchClientsInfo } from "@/entities/Client/model/slice";
 
 export function BackUp() {

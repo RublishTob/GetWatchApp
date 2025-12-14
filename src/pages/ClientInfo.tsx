@@ -4,8 +4,7 @@ import ClientForm, { ClientFormFields } from "@features/ui/ClientForm";
 import { selectSelectedClient, selectselectedClientId } from "@/entities/Client/model/selectors";
 import { updateClientPartial, deleteOneClient } from "@/entities/Client/model/slice";
 import { useDateConverter } from "@shared/hooks/useDataConverter";
-import { useNavigationApp } from "@features/model/useNavigationApp";
-import { COLOR } from "@/shared/constants/colors";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 
 export default function ClientInfo() {
     const dispatch = useAppDispatch();
@@ -15,7 +14,6 @@ export default function ClientInfo() {
     const selectedClient = useAppSelector(selectSelectedClient);
     const selectedId = useAppSelector(selectselectedClientId);
 
-    // Если клиента нет
     if (!selectedClient) {
         return (
             <View>
@@ -23,12 +21,9 @@ export default function ClientInfo() {
             </View>
         );
     }
-
-    // Конвертация дат
     const dateIn = new Date(fromTimestamp(selectedClient.dateIn));
     const dateOut = new Date(fromTimestamp(selectedClient.dateOut));
 
-    // --- Обновление клиента ---
     const handleUpdate = (data: ClientFormFields) => {
         dispatch(
             updateClientPartial({
@@ -45,16 +40,12 @@ export default function ClientInfo() {
                 viewOfWatch: data.viewOfWatch,
                 reason: data.reason,
 
-                // timestamps
                 dateIn: toTimestamp(data.dateIn),
                 dateOut: toTimestamp(data.dateOut),
 
-                // accepted/conflict
                 accepted: data.accepted,
                 isConflictClient: data.isConflictClient,
 
-                // ❗ ВАЖНО: hasWarranty НЕ СЧИТАЕМ ТУТ
-                // он пересчитывается в slice внутри updateClientPartial автоматически
             })
         );
 

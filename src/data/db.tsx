@@ -1,188 +1,99 @@
-import clients from "C:/React/GetWatchApp/newClients.json";
-import SQLite from 'react-native-sqlite-storage';
-import {SQLiteDatabase} from 'react-native-sqlite-storage';
+import SQLite, { SQLiteDatabase, ResultSet, Transaction } from "react-native-sqlite-storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import RNFS from "react-native-fs";
+import clients from "C:/React/GetWatchApp/newClients.json";
+import { Client } from "@/entities/Client";
+import RNFS from 'react-native-fs';
 
 SQLite.enablePromise(true);
 SQLite.DEBUG(false);
 
-export interface Client {
-  id: number;
-  clientName: string;
-  lastname: string;
-  numberOfPhone: string;
-  price: number;
-  nameOfWatch: string;
-  reason: string;
-  viewOfWatch: string;
-  warrantyMonths: number;
-  dateIn: number;
-  dateOut: number;
-  hasWarranty: boolean;
-  accepted: boolean;
-  isConflictClient: boolean;
+let db: SQLiteDatabase | null = null;
+
+// ----------------------------------------------------------------------
+// TYPES
+// ----------------------------------------------------------------------
+
+export interface OldClient {
+  Id: number;
+  InProcess?: number;
+  DateIn: string;
+  DateOut: string;
+  NumberOfPhone?: string;
+  Cost?: string;
+  Name?: string;
+  Surname?: string;
+  NameOfWatch?: string;
+  Reason?: string;
+  ViewOfWatch?: string;
+  Guarantee?: string;
 }
 
-let db: SQLite.SQLiteDatabase | null = null;
+// ----------------------------------------------------------------------
+// INIT
+// ----------------------------------------------------------------------
 
-// -----------------------------
-// INIT DB
-// -----------------------------
+export async function initDB(restoreMode = false): Promise<SQLiteDatabase> {
+  if (db) return db;
 
-
-export async function clearDatabase() {
-  console.log("⚠ Clearing SQL database...");
-
-  if (!db) {
-    db = await SQLite.openDatabase({
-      name: "getwatch.db",
-      location: "default",
-    });
-  }
-
-  // Удаляем данные
-  await db.executeSql("DELETE FROM Clients;");
-
-  // Сбрасываем автоинкремент первичного ключа, чтобы ID шли с 1
-  await db.executeSql("DELETE FROM sqlite_sequence WHERE name='Clients';");
-
-  // Удаляем флаг сидирования
-  await AsyncStorage.removeItem("db_seeded");
-
-  console.log("✔ Database cleared. Ready to reseed.");
-
-  // После этого можно вызывать initDB() или seedDatabase()
-}
-
-SQLite.enablePromise(true);
-
-async function getRealDbPath(): Promise<string> {
-  const db: SQLiteDatabase = await SQLite.openDatabase({
+  db = await SQLite.openDatabase({
     name: "getwatch.db",
     location: "default",
   });
 
-  return new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        "PRAGMA database_list;",
-        [],
-        (_, resultSet:any) => {
-          try {
-            const row = resultSet.rows.item(0);
-            console.log("REAL PATH =", row.file);
-            resolve(row.file);
-          } catch (e) {
-            reject(e);
-          }
-        },
-        (_, err:any) => {
-          reject(err);
-          return false;
-        }
-      );
-    });
-  });
-}
-
-
-export async function initDB(restoreMode = false) {
-
-  if (db) {
-    try { await db.close(); } catch {}
-    db = null;
-  }
-   db = await SQLite.openDatabase({
-     name: "getwatch.db",
-     location: "default",
-   });
-
-   getRealDbPath();
-
-    if (!restoreMode) {
+  if (!restoreMode) {
     await createTables();
-    const isSeeded = await AsyncStorage.getItem("db");
-  
-     if (!isSeeded) {
-       console.log("▶ First launch — seeding database...");
-       await seedDatabase();
-       await AsyncStorage.setItem("db", "true");
-     } else {
-       console.log("✔ DB already seeded");
-     }
-  }
 
+    await AsyncStorage.clear();
+    const isSeeded = await AsyncStorage.getItem("db");
+    if (!isSeeded) {
+      console.log("▶ First launch — seeding database...");
+      await seedDatabase();
+      await AsyncStorage.setItem("db", "true");
+    } else {
+      console.log("✔ DB already seeded");
+    }
+  }
 
   return db;
 }
 
-export async function closeDB() {
+export async function closeDB(): Promise<void> {
   if (!db) return;
+
   try {
     await db.close();
   } catch (e) {
-    console.warn('closeDB error', e);
+    console.warn("closeDB error", e);
   }
+
   db = null;
 }
 
-export function getDbInstance() {
-  if (!db) throw new Error('Database not opened. Call initDB() first.');
+export function getDbInstance(): SQLiteDatabase {
+  if (!db) throw new Error("DB not initialized! Call initDB() first.");
   return db;
 }
 
-export function seedDatabase() {
-  if (!db) return;
+// ----------------------------------------------------------------------
+// CLEAR
+// ----------------------------------------------------------------------
 
-  db.executeSql("DELETE FROM Clients");
+export async function clearDatabase(): Promise<void> {
+  const instance = getDbInstance();
 
-  db.transaction(tx => {
-    clients.forEach(client => {
-      tx.executeSql(
-        `INSERT OR REPLACE INTO Clients 
-         (id, clientName, lastname, numberOfPhone, price, nameOfWatch, reason,
-         viewOfWatch, warrantyMonths, dateIn, dateOut, hasWarranty, accepted, isConflictClient)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          client.id,
-          client.clientName,
-          client.lastname,
-          client.numberOfPhone,
-          client.price,
-          client.nameOfWatch,
-          client.reason,
-          client.viewOfWatch,
-          client.warrantyMonths,
-          client.dateIn,
-          client.dateOut,
-          client.hasWarranty ? 1 : 0,
-          client.accepted ? 1 : 0,
-          client.isConflictClient ? 1 : 0
-        ],
-        () => {
-          // success callback, можно логировать успех
-        },
-        (tx, error) => {
-          console.error('Error inserting client:', error);
-          return false; // чтобы транзакция не откатывалась
-        }
-      );
-    });
-  }, error => {
-    console.error('Transaction error:', error);
-  }, () => {
-    console.log('All clients inserted successfully');
-  });
+  await instance.executeSql("DELETE FROM Clients;");
+  await instance.executeSql("DELETE FROM sqlite_sequence WHERE name='Clients';");
+  await AsyncStorage.removeItem("db");
 }
 
-// -----------------------------
-// CREATE TABLE
-// -----------------------------
-async function createTables() {
-  if (!db) return;
+// ----------------------------------------------------------------------
+// CREATE TABLES
+// ----------------------------------------------------------------------
 
-  await db.executeSql(`
+async function createTables(): Promise<void> {
+  const instance = getDbInstance();
+
+  await instance.executeSql(`
     CREATE TABLE IF NOT EXISTS Clients (
       id INTEGER PRIMARY KEY NOT NULL,
       clientName TEXT,
@@ -202,18 +113,135 @@ async function createTables() {
   `);
 }
 
-// -----------------------------
+// ----------------------------------------------------------------------
+// SEED
+// ----------------------------------------------------------------------
+
+export async function seedDatabase(): Promise<void> {
+  if(!clients) return;
+  const instance = getDbInstance();
+
+  await new Promise<void>((resolve, reject) => {
+    instance.transaction(
+      (tx) => {
+        clients.forEach((client) => {
+          tx.executeSql(
+            `INSERT OR REPLACE INTO Clients 
+              (id, clientName, lastname, numberOfPhone, price, nameOfWatch, reason,
+               viewOfWatch, warrantyMonths, dateIn, dateOut, hasWarranty, accepted, isConflictClient)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              client.id,
+              client.clientName,
+              client.lastname,
+              client.numberOfPhone,
+              client.price,
+              client.nameOfWatch,
+              client.reason,
+              client.viewOfWatch,
+              client.warrantyMonths,
+              client.dateIn,
+              client.dateOut,
+              client.hasWarranty ? 1 : 0,
+              client.accepted ? 1 : 0,
+              client.isConflictClient ? 1 : 0,
+            ]
+          );
+        });
+      },
+      (err) => reject(err),
+      () => resolve()
+    );
+  });
+
+  console.log("✔ DB seeded");
+}
+
+// ----------------------------------------------------------------------
+// GET CLIENTS
+// ----------------------------------------------------------------------
+
+export async function getClients(): Promise<Client[]> {
+  const instance = getDbInstance();
+
+  const result = await instance.executeSql(`SELECT * FROM Clients`);
+  const rows = result[0].rows;
+
+  const arr: Client[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows.item(i);
+
+    arr.push({
+      id: row.id,
+      clientName: row.clientName,
+      lastname: row.lastname,
+      numberOfPhone: row.numberOfPhone,
+      price: row.price,
+      nameOfWatch: row.nameOfWatch,
+      reason: row.reason,
+      viewOfWatch: row.viewOfWatch,
+      warrantyMonths: row.warrantyMonths,
+      dateIn: row.dateIn,
+      dateOut: row.dateOut,
+      hasWarranty: Boolean(row.hasWarranty),
+      accepted: Boolean(row.accepted),
+      isConflictClient: Boolean(row.isConflictClient),
+    });
+  }
+
+  return arr;
+}
+
+// ----------------------------------------------------------------------
+// GET CLIENT BY ID
+// ----------------------------------------------------------------------
+
+export async function getClientById(id: number): Promise<Client | null> {
+  const instance = getDbInstance();
+
+  const result = await instance.executeSql(
+    `SELECT * FROM Clients WHERE id = ? LIMIT 1`,
+    [id]
+  );
+
+  if (result[0].rows.length === 0) return null;
+
+  const row = result[0].rows.item(0);
+
+  return {
+    id: row.id,
+    clientName: row.clientName,
+    lastname: row.lastname,
+    numberOfPhone: row.numberOfPhone,
+    price: row.price,
+    nameOfWatch: row.nameOfWatch,
+    reason: row.reason,
+    viewOfWatch: row.viewOfWatch,
+    warrantyMonths: row.warrantyMonths,
+    dateIn: row.dateIn,
+    dateOut: row.dateOut,
+    hasWarranty: Boolean(row.hasWarranty),
+    accepted: Boolean(row.accepted),
+    isConflictClient: Boolean(row.isConflictClient),
+  };
+}
+
+// ----------------------------------------------------------------------
 // ADD CLIENT
-// -----------------------------
-export async function addClient(client: Omit<Client, "id">) {
-  if (!db) await initDB();
+// ----------------------------------------------------------------------
+
+type NewClient = Omit<Client, "id">;
+
+export async function addClient(data: NewClient): Promise<number> {
+  const instance = getDbInstance();
 
   const id = Date.now();
 
-  await db!.executeSql(
+  await instance.executeSql(
     `
       INSERT INTO Clients (
-        id, clientName, lastname, numberOfPhone, price, 
+        id, clientName, lastname, numberOfPhone, price,
         nameOfWatch, reason, viewOfWatch, warrantyMonths,
         dateIn, dateOut, hasWarranty, accepted, isConflictClient
       )
@@ -221,48 +249,48 @@ export async function addClient(client: Omit<Client, "id">) {
     `,
     [
       id,
-      client.clientName,
-      client.lastname,
-      client.numberOfPhone,
-      client.price,
-      client.nameOfWatch,
-      client.reason,
-      client.viewOfWatch,
-      client.warrantyMonths,
-      client.dateIn,
-      client.dateOut,
-      client.hasWarranty ? 1 : 0,
-      client.accepted ? 1 : 0,
-      client.isConflictClient ? 1 : 0,
+      data.clientName,
+      data.lastname,
+      data.numberOfPhone,
+      data.price,
+      data.nameOfWatch,
+      data.reason,
+      data.viewOfWatch,
+      data.warrantyMonths,
+      data.dateIn,
+      data.dateOut,
+      data.hasWarranty ? 1 : 0,
+      data.accepted ? 1 : 0,
+      data.isConflictClient ? 1 : 0,
     ]
   );
 
   return id;
 }
 
-// -----------------------------
-// DELETE CLIENT BY ID
-// -----------------------------
+// ----------------------------------------------------------------------
+// DELETE CLIENT
+// ----------------------------------------------------------------------
 
-export async function deleteClient(id: number) {
-  if (!db) await initDB();
-  await db?.executeSql("DELETE FROM Clients WHERE id = ?", [id]);
-  return id;
+export async function deleteClient(id: number): Promise<void> {
+  const instance = getDbInstance();
+  await instance.executeSql("DELETE FROM Clients WHERE id = ?", [id]);
 }
 
-// -----------------------------
-// UPDATE CLIENT BY ID
-// -----------------------------
-export async function updateClient(client: Client) {
-  if (!db) await initDB();
+// ----------------------------------------------------------------------
+// UPDATE FULL CLIENT
+// ----------------------------------------------------------------------
 
-  await db!.executeSql(
+export async function updateClient(client: Client): Promise<void> {
+  const instance = getDbInstance();
+
+  await instance.executeSql(
     `
       UPDATE Clients SET
-        clientName = ?, lastname = ?, numberOfPhone = ?, price = ?,
-        nameOfWatch = ?, reason = ?, viewOfWatch = ?, warrantyMonths = ?,
-        dateIn = ?, dateOut = ?, hasWarranty = ?, accepted = ?, isConflictClient = ?
-      WHERE id = ?
+        clientName=?, lastname=?, numberOfPhone=?, price=?,
+        nameOfWatch=?, reason=?, viewOfWatch=?, warrantyMonths=?,
+        dateIn=?, dateOut=?, hasWarranty=?, accepted=?, isConflictClient=?
+      WHERE id=?
     `,
     [
       client.clientName,
@@ -283,62 +311,30 @@ export async function updateClient(client: Client) {
   );
 }
 
-// -----------------------------
-// GET ALL CLIENTS
-// -----------------------------
-export async function getClients(): Promise<Client[]> {
-  if (!db) await initDB();
+// ----------------------------------------------------------------------
+// UPDATE PARTIAL CLIENT
+// ----------------------------------------------------------------------
 
-  const result = await db!.executeSql(`SELECT * FROM Clients`);
-  const rows = result[0].rows;
+export async function updateClientPartialInDb(
+  data: Partial<Client> & { id: number }
+): Promise<Client> {
+  const instance = getDbInstance();
 
-  const clients: Client[] = [];
+  const existing = await getClientById(data.id);
+  if (!existing) throw new Error("Client not found");
 
-  for (let i = 0; i < rows.length; i++) {
-    const item = rows.item(i);
+  const updated: Client = { ...existing, ...data };
 
-    clients.push({
-      id: item.id,
-      clientName: item.clientName,
-      lastname: item.lastname,
-      numberOfPhone: item.numberOfPhone,
-      price: item.price,
-      nameOfWatch: item.nameOfWatch,
-      reason: item.reason,
-      viewOfWatch: item.viewOfWatch,
-      warrantyMonths: item.warrantyMonths,
-      dateIn: item.dateIn,
-      dateOut: item.dateOut,
-      hasWarranty: !!item.hasWarranty,
-      accepted: !!item.accepted,
-      isConflictClient: !!item.isConflictClient,
-    });
-  }
+  await updateClient(updated);
 
-  return clients;
+  return updated;
 }
 
-// -----------------------------
-// IMPORT OLD DATABASE DATA (JSON)
-// -----------------------------
-interface OldClient {
-  Id: number;
-  InProcess?: number;
-  DateIn: string;
-  DateOut: string;
-  NumberOfPhone?: string;
-  Cost?: string;
-  Name?: string;
-  Surname?: string;
-  NameOfWatch?: string;
-  Reason?: string;
-  ViewOfWatch?: string;
-  Guarantee?: string;
-}
+// ----------------------------------------------------------------------
+// IMPORT OLD JSON
+// ----------------------------------------------------------------------
 
-export async function importOldJsonClients(oldClients: OldClient[]) {
-  if (!db) await initDB();
-
+export async function importOldJsonClients(oldClients: OldClient[]): Promise<void> {
   for (const old of oldClients) {
     const newClient: Client = {
       id: old.Id,
@@ -354,71 +350,11 @@ export async function importOldJsonClients(oldClients: OldClient[]) {
       dateOut: Date.parse(old.DateOut),
       hasWarranty: Boolean(old.Guarantee && old.Guarantee !== "0"),
       accepted: old.InProcess === 1,
-      isConflictClient: false, // отсутствовало в старой БД
+      isConflictClient: false,
     };
 
-    await updateClient(newClient); // upsert логика
+    await updateClient(newClient);
   }
-}
-
-export async function getClientById(id: number): Promise<Client | null> {
-  if (!db) await initDB();
-
-  const res = await db!.executeSql(`SELECT * FROM Clients WHERE id = ? LIMIT 1`, [id]);
-  const rows = res[0].rows;
-  if (rows.length === 0) return null;
-  const item = rows.item(0);
-  return {
-    id: item.id,
-    clientName: item.clientName,
-    lastname: item.lastname,
-    numberOfPhone: item.numberOfPhone,
-    price: item.price,
-    nameOfWatch: item.nameOfWatch,
-    reason: item.reason,
-    viewOfWatch: item.viewOfWatch,
-    warrantyMonths: item.warrantyMonths,
-    dateIn: item.dateIn,
-    dateOut: item.dateOut,
-    hasWarranty: !!item.hasWarranty,
-    accepted: !!item.accepted,
-    isConflictClient: !!item.isConflictClient,
-  };
-}
-export async function updateClientPartialInDb(data: Partial<Client> & { id: number }) {
-  if (!db) await initDB();
-
-  const existing = (await getClientById(data.id));
-
-  const updated = { ...existing, ...data };
-
-  await db!.executeSql(
-    `
-      UPDATE Clients SET
-        clientName=?, lastname=?, numberOfPhone=?, price=?,
-        nameOfWatch=?, reason=?, viewOfWatch=?, warrantyMonths=?,
-        dateIn=?, dateOut=?, hasWarranty=?, accepted=?, isConflictClient=?
-      WHERE id=?
-    `,
-    [
-      updated.clientName,
-      updated.lastname,
-      updated.numberOfPhone,
-      updated.price,
-      updated.nameOfWatch,
-      updated.reason,
-      updated.viewOfWatch,
-      updated.warrantyMonths,
-      updated.dateIn,
-      updated.dateOut,
-      updated.hasWarranty ? 1 : 0,
-      updated.accepted ? 1 : 0,
-      updated.isConflictClient ? 1 : 0,
-      updated.id
-    ]
-  );
-
-  return updated;
 }
 export async function reopenDatabase() {
   console.log("🔄 Reopening SQLite database...");

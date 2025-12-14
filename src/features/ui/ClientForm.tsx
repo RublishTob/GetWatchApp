@@ -2,9 +2,10 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigationApp } from "@/features/model/useNavigationApp";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 import { clientYupSchema } from "../model/client.yup.schema";
-
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { useDeleteConfirm } from "@/features/hooks/useDeleteConfirm"
 import Button from "@/shared/ui/Button";
 import { FormInput } from "@/shared/ui/FormInput";
 import { FormCheckBox } from "@/shared/ui/FormCheckBox";
@@ -36,7 +37,7 @@ interface Props {
 
 const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) => {
     const navigation = useNavigationApp();
-
+    const deleteConfirm = useDeleteConfirm(onDelete);
     // локальная логика подсчёта гарантии
     const calculateWarranty = (dateOut: Date, months: number): boolean => {
         if (!dateOut || !months) return false;
@@ -112,7 +113,19 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
                     <FormDatePicker style={styles.form} control={control} name="dateIn" label="Дата приемки" />
                     <FormDatePicker style={styles.form} control={control} name="dateOut" label="Дата выдачи" />
 
-                    {onDelete && <Button text="Удалить" colorButton="#721414ff" onPress={onDelete} />}
+                    {onDelete &&
+                        <View>
+                            <Button text="Удалить" colorButton="#721414ff" onPress={deleteConfirm.ask} />
+                            <ConfirmModal
+                                visible={deleteConfirm.open}
+                                title="Удалить клиента?"
+                                message="Это действие нельзя отменить."
+                                onCancel={deleteConfirm.cancel}
+                                onConfirm={deleteConfirm.confirm}
+                            />
+
+                        </View>
+                    }
 
                 </ScrollView>
             </View>
@@ -158,6 +171,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: "#48465eff",
         height: "25%",
+        width: "100%",
         gap: 20,
     },
     containerClient: {

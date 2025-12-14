@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "530790439354-4ja35qdq3r5ai1fphk3i8o1klhpt38i5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.getwatchapp",
+            "certificate_hash": "b6f07ff1cf7d80d29772998778a98b45299b5144"
+          }
+        },
+        {
           "client_id": "530790439354-5kt4ts7t1utekdvr47vl5lgu403hgrv7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -50,14 +58,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "530790439354-vv4e6mq260nho9dvlk9vu4e1a4a2b988.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.googletest",
-            "certificate_hash": "1cfca6f012921b5fc63d93a1b806485b352cfb4f"
-          }
-        },
         {
           "client_id": "530790439354-l9qnqq89egi1olkj3c198shc7ga08s9r.apps.googleusercontent.com",
           "client_type": 3

@@ -1,13 +1,10 @@
-// useBackup.ts
 import { useCallback, useState } from 'react';
-import SQLite from 'react-native-sqlite-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNFS from 'react-native-fs';
-import { Alert, Platform } from 'react-native';
-import { readDatabaseBase64, replaceDatabaseWith } from '@/services/sqlLiteBackup';
+import { Alert } from 'react-native';
+import { readDatabaseBase64, replaceDatabaseWith } from '@/services/googleBackUp/sqlLiteBackup';
 import { uploadBackupBase64, listBackups, downloadBackup } from './googleDrive';
 import { signInGoogle, getFreshAccessToken } from './googleAuth';
-import { initDB, closeDB, logClientsCount } from '@/data/db';
+import { initDB, closeDB } from '@/data/db';
 
 const LAST_BACKUP_KEY = 'last_db_backup';
 
@@ -95,8 +92,6 @@ const restoreLatest = useCallback(async () => {
     console.log('Database replaced successfully');
 
     await initDB(true);
-    await logClientsCount();
-    Alert.alert('Восстановление завершено')
   } catch (err: any) {
     console.error('restoreLatest error', err);
     Alert.alert('Ошибка восстановления', err.message ?? String(err));

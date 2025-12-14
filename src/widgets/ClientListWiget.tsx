@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
 import { selectClientId } from "@/entities/Client/model/slice";
 import { fetchClientsInfo } from "@/entities/Client/model/slice";
-import { useNavigationApp } from "@/features/model/useNavigationApp";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 
 interface ClientListProp{
     height:number,

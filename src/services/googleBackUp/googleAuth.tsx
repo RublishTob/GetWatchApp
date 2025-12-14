@@ -26,7 +26,6 @@ export const configureGoogle = () => {
     offlineAccess: true,
     scopes: ['profile', 'email', 'https://www.googleapis.com/auth/drive.appdata'],
     forceCodeForRefreshToken: true,
-    // iosClientId: '...' // если есть iOS web client
   });
 };
 
@@ -36,7 +35,6 @@ export const signInGoogle = async (): Promise<AuthResult> => {
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
     const result = await GoogleSignin.signIn(); 
-    // result имеет структуру SignInResponse
 
     if (!result.data?.user?.email) {
       throw new Error("Google signin failed");
@@ -69,7 +67,6 @@ export const signOutGoogle = async () => {
   try {
     await GoogleSignin.signOut();
   } catch (e) {
-    // noop
   }
 };
 
@@ -77,8 +74,6 @@ export async function getFreshAccessToken() {
   try {
     const { accessToken } = await GoogleSignin.getTokens();
     if (accessToken) return accessToken;
-
-    // fallback: refresh token via re-signin
     await GoogleSignin.signInSilently();
     const tokens = await GoogleSignin.getTokens();
     return tokens.accessToken;

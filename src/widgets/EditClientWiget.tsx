@@ -7,7 +7,7 @@ import { addClientLocal } from "@/entities/Client/model/slice";
 import { useDateConverter } from "@shared/hooks/useDataConverter";
 import { FormInput } from "@/shared/ui/FormInput";
 import { clientYupSchema } from "@features/model/client.yup.schema";
-import { useNavigationApp } from "@features/model/useNavigationApp";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 import { FormCheckBox } from "@/shared/ui/FormCheckBox";
 import FormDatePicker from "@shared/ui/FormDatePicker";
 import { yupResolver } from '@hookform/resolvers/yup';

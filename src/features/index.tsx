@@ -1,2 +1,2 @@
 export * from "./ui/SelectClient";
-export * from "./model/useSelectClient";
+export * from "./hooks/useSelectClient";

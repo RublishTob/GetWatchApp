@@ -65,6 +65,15 @@ const clientsSlice = createSlice({
     updateClientFull: adapter.setOne,
     removeClientLocal: adapter.removeOne,
     selectClientId(state, action: { payload: number | null }) { (state as any).selectedId = action.payload; },
+    updateClientsBulk(state, action: { payload: { id: number; hasWarranty: boolean }[] }) {
+      const updates = action.payload.map(item => ({
+        id: item.id,
+        changes: { hasWarranty: item.hasWarranty }
+      }));
+
+      adapter.updateMany(state, updates);
+    },
+    
   },
   extraReducers: (builder) => {
     builder
@@ -95,6 +104,6 @@ const clientsSlice = createSlice({
 });
 
 export default clientsSlice.reducer;
-export const { addClientLocal, updateClientLocal, removeClientLocal, selectClientId } = clientsSlice.actions;
+export const { addClientLocal, updateClientLocal, removeClientLocal, selectClientId, updateClientsBulk } = clientsSlice.actions;
 export const clientAdapter = adapter;
 export type ClientState = ReturnType<typeof clientsSlice.getInitialState>;

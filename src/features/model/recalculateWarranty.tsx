@@ -1,23 +1,27 @@
 import { recalcHasWarranty } from "@/shared/hooks/recalcHasWarranty";
-import { useSelector } from "react-redux";
-import { COLOR } from "@shared/constants/colors"
-import { SelectClient } from "@/features";
-import { stylesCommon } from "@shared/styles/commonStyles";
-import { useDispatch } from "react-redux";
-import { useAppDispatch, useAppSelector } from "@/app/store/hook";
-import { selectFilteredClients } from "@/features/model/selectedFilterdClients";
-import { updateOneClient, deleteOneClient, updateClientPartial} from "@/entities/Client/model/slice";
+import { updateClientsBulk} from "@/entities/Client/model/slice";
 import { Client } from "@/entities/Client/model/types";
+import { AppDispatch } from "@/app/store/Store";
 
+export async function recalcWarrantyForClients(
+  clients: Client[],
+  dispatch: AppDispatch
+) {
+  const updates = [];
+  let i = 0;
 
-export async function recalcWarrantyForClients(clients: Client[], dispatch: any) {
-    for (const c of clients) {
-        const newWarranty = recalcHasWarranty(c);
-        if (newWarranty === c.hasWarranty) continue;
-
-        dispatch(updateClientPartial({
-            id: c.id,
-            hasWarranty: newWarranty
-        }));
+  for (const c of clients) {
+    const newWarranty = recalcHasWarranty(c);
+    if (newWarranty !== c.hasWarranty) {
+      updates.push({ id: c.id, hasWarranty: newWarranty });
     }
+    i++;
+    if (i % 2000 === 0) {
+      await new Promise(resolve => setTimeout(resolve));
+    }
+  }
+
+  if (updates.length > 0) {
+    dispatch(updateClientsBulk(updates));
+  }
 }

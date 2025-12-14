@@ -4,7 +4,7 @@ import {Client} from "@entities/Client/model/types"
 import { useEffect, useState, useMemo, useRef} from "react";
 import { useScreen } from "@/shared/hooks/useScreenSize";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigationApp } from "@features/model/useNavigationApp";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 import { toggleOnDelivery } from "@/features/model/filterClients/slices/filterClientsSlice";
 import { selectAllClients } from "@entities/Client/model/selectors"
 import { COLOR } from "@/shared/constants/colors";
