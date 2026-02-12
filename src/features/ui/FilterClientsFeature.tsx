@@ -31,7 +31,7 @@ export const FilterClientsFeature = ({showFilters}: FilterProp) => {
 const styles = StyleSheet.create({
     Icon:{
         width:"23%",
-        height:"40%",
+        height:"60%",
         alignItems: "center",
         justifyContent: "center"
     },

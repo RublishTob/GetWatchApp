@@ -16,7 +16,7 @@ const adapter = createEntityAdapter<Client>({
 export const fetchClientsInfo = createAsyncThunk(
   "clients/fetch",
   async () => {
-    await initDB();
+    await initDB(true);
     return await apiDb.fetchClientsFromDb();
   }
 );
@@ -31,7 +31,9 @@ export const createOneClient = createAsyncThunk(
 export const updateClientPartial = createAsyncThunk(
   "client/updatePartial",
   async (payload: Partial<Client> & { id: number }) => {
-    return await apiDb.updateClientPartialInDb(payload);
+    const res = await apiDb.updateClientPartialInDb(payload);
+    console.log("DB saved:", res);
+    return res;
   }
 );
 

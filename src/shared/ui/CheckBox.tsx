@@ -1,12 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
-import { TouchableWithoutFeedback, Animated, StyleSheet, Easing} from "react-native";
+import {
+  TouchableWithoutFeedback,
+  Animated,
+  StyleSheet,
+  Easing,
+  View,
+  ViewStyle,
+} from "react-native";
 
 export interface ModernCheckboxProps {
-  size?: number;
+  size?: number | string; // px или "50%"
   value?: boolean;
   onValueChange?: (value: boolean) => void;
-  color?:string;
-  disabled?:boolean
+  color?: string;
+  disabled?: boolean;
+  style?: ViewStyle;
 }
 
 export const Checkbox: React.FC<ModernCheckboxProps> = ({
@@ -14,12 +22,24 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
   value = false,
   onValueChange,
   color = "#4A90E2",
-  disabled = false
+  disabled = false,
+  style,
 }) => {
+  // Реальный размер в px
+  const [realSize, setRealSize] = useState<number>(
+    typeof size === "number" ? size : 40
+  );
+
   const [checked, setChecked] = useState(value);
+
   const animation = useRef(new Animated.Value(value ? 1 : 0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const rippleAnim = useRef(new Animated.Value(0)).current;
+
+  // Синхронизация с value
+  useEffect(() => {
+    setChecked(value);
+  }, [value]);
 
   useEffect(() => {
     Animated.timing(animation, {
@@ -28,10 +48,12 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
       easing: Easing.out(Easing.quad),
       useNativeDriver: false,
     }).start();
-  }, [checked, animation]);
+  }, [checked]);
 
   const toggle = () => {
-    // Ripple animation
+    if (disabled) return;
+
+    // Ripple
     rippleAnim.setValue(0);
     Animated.timing(rippleAnim, {
       toValue: 2,
@@ -40,7 +62,7 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
       easing: Easing.out(Easing.ease),
     }).start();
 
-    // Circle scale effect
+    // Scale
     scaleAnim.setValue(0.8);
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -48,13 +70,17 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
       useNativeDriver: false,
     }).start();
 
-    setChecked(prev => !prev);
-    if (onValueChange) {onValueChange(!checked);}
+    const newValue = !checked;
+
+    setChecked(newValue);
+    onValueChange?.(newValue);
   };
 
+  const s = realSize;
+
   const circlePosition = animation.interpolate({
-    inputRange: [0, 0.27],
-    outputRange: [4, size - 2 - size / 2],
+    inputRange: [0, 1],
+    outputRange: [4, s * 2 - s / 2 - 4],
   });
 
   const backgroundColor = animation.interpolate({
@@ -73,56 +99,61 @@ export const Checkbox: React.FC<ModernCheckboxProps> = ({
   });
 
   return (
-    <TouchableWithoutFeedback onPress={toggle} disabled={disabled}>
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            width: size * 2,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.3,
-            shadowRadius: 4,
-            elevation: 5,
-          }
-        ]}
-      >
+    <View
+      style={style}
+      onLayout={(e) => {
+        if (typeof size === "string" && size.includes("%")) {
+          const parentWidth = e.nativeEvent.layout.width;
+          const percent = parseFloat(size) / 100;
+
+          setRealSize(parentWidth * percent);
+        }
+      }}
+    >
+      <TouchableWithoutFeedback onPress={toggle} disabled={disabled}>
         <Animated.View
           style={[
-            styles.ripple,
+            styles.container,
             {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              transform: [{ scale: rippleScale }],
-              opacity: rippleOpacity,
+              width: s * 2,
+              height: s,
+              borderRadius: s / 2,
+              backgroundColor,
             },
           ]}
-        />
-        <Animated.View
-          style={[
-            styles.circle,
-            {
-              width: size / 2,
-              height: size / 2,
-              borderRadius: size / 4,
-              transform: [
-                { translateX: circlePosition },
-                { scale: scaleAnim },
-              ],
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 2,
-              elevation: 3,
-            },
-          ]}
-        />
-      </Animated.View>
-    </TouchableWithoutFeedback>
+        >
+          {/* Ripple */}
+          <Animated.View
+            style={[
+              styles.ripple,
+              {
+                width: s,
+                height: s,
+                borderRadius: s / 2,
+                transform: [{ scale: rippleScale }],
+                opacity: rippleOpacity,
+              },
+            ]}
+          />
+
+          {/* Circle */}
+          <Animated.View
+            style={[
+              styles.circle,
+              {
+                width: s / 2,
+                height: s / 2,
+                borderRadius: s / 4,
+                transform: [
+                  { translateX: circlePosition },
+                  { scale: scaleAnim },
+                ],
+              },
+            ]}
+          />
+        </Animated.View>
+      </TouchableWithoutFeedback>
+    </View>
   );
 };
 
@@ -132,11 +163,13 @@ const styles = StyleSheet.create({
     padding: 2,
     overflow: "hidden",
   },
+
   circle: {
     backgroundColor: "#fff",
     position: "absolute",
     top: "30%",
   },
+
   ripple: {
     position: "absolute",
     top: 0,

@@ -7,7 +7,7 @@ import { stylesCommon } from "@shared/styles/commonStyles";
 import { selectFilteredClients } from "@/features/model/selectedFilterdClients";
 import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
-import { selectClientId } from "@/entities/Client/model/slice";
+import { selectClientId,updateClientPartial } from "@/entities/Client/model/slice";
 import { fetchClientsInfo } from "@/entities/Client/model/slice";
 import { useNavigationApp } from "@/features/hooks/useNavigationApp";
 
@@ -31,10 +31,13 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
     navigation.navigate("ClientInfo");
   };
 
+    const changeAcceptedStatusOfClient = (id: number,accepted: boolean) => {
+    dispatch(updateClientPartial({id:id,accepted: accepted}));
+  };
+
   useEffect(() => {
   dispatch(fetchClientsInfo());
   console.log(allClients.length);
-
 }, []);
 
   if (allClients.length === 0) {
@@ -70,6 +73,7 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
             item={item}
             handlePress={handleGetId}
             pressToShowInfo={handleShowClientInfo}
+            changeAcceptedStatus={changeAcceptedStatusOfClient}
           />
         )}
         keyExtractor={(item) => item.id.toString()}

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigationApp } from "@/features/hooks/useNavigationApp";
-import { clientYupSchema } from "../model/client.yup.schema";
+import { clientYupSchema } from "../features/model/client.yup.schema";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { useDeleteConfirm } from "@/features/hooks/useDeleteConfirm"
 import Button from "@/shared/ui/Button";
@@ -75,6 +75,11 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
 
     // вычисление гарантии при первой загрузке
     useEffect(() => {
+        if(onDelete)
+        {
+            setValue("hasWarranty", false, { shouldValidate: false});
+            return;
+        }
         const monthsNum = Number(initialValues.warrantyMonths ?? 0);
         const has = calculateWarranty(initialValues.dateOut ?? new Date(), monthsNum);
         setValue("hasWarranty", has, { shouldValidate: false, shouldDirty: false });

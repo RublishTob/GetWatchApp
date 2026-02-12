@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
-import ClientForm, { ClientFormFields } from "@features/ui/ClientForm";
+import ClientForm, { ClientFormFields } from "@/widgets/ClientForm";
 import { selectSelectedClient, selectselectedClientId } from "@/entities/Client/model/selectors";
 import { updateClientPartial, deleteOneClient } from "@/entities/Client/model/slice";
 import { useDateConverter } from "@shared/hooks/useDataConverter";

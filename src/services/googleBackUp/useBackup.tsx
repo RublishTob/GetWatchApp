@@ -1,116 +1,297 @@
-import { useCallback, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
-import { readDatabaseBase64, replaceDatabaseWith } from '@/services/googleBackUp/sqlLiteBackup';
-import { uploadBackupBase64, listBackups, downloadBackup } from './googleDrive';
-import { signInGoogle, getFreshAccessToken } from './googleAuth';
-import { initDB, closeDB } from '@/data/db';
+import { useCallback, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 
-const LAST_BACKUP_KEY = 'last_db_backup';
+import {
+  readDatabaseBase64,
+  replaceDatabaseWith,
+} from "@/services/googleBackUp/sqlLiteBackup";
 
-export function useBackup(dbName = 'getwatch.db') {
+import {
+  uploadBackupBase64,
+  listBackups,
+  downloadBackup,
+} from "./googleDrive";
+
+import {
+  signInGoogle,
+  signOutGoogle,
+  getFreshAccessToken,
+  getCurrentUser,
+  GoogleUser,
+} from "./googleAuth";
+
+import { initDB, closeDB } from "@/data/db";
+
+
+const LAST_BACKUP_KEY = "last_db_backup";
+
+
+export function useBackup(dbName = "getwatch.db") {
   const [loading, setLoading] = useState(false);
+
   const [lastBackup, setLastBackup] = useState<string | null>(null);
 
-  const ensureSignedIn = useCallback(async () => {
+  const [user, setUser] = useState<GoogleUser | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
+
+
+  /* =============================
+     INIT USER
+  ============================= */
+
+  useEffect(() => {
+    loadUser();
+    loadLastBackup();
+  }, []);
+
+
+  const loadUser = async () => {
+    const current = await getCurrentUser();
+    setUser(current);
+  };
+
+
+  const loadLastBackup = async () => {
+    const ts = await AsyncStorage.getItem(LAST_BACKUP_KEY);
+    setLastBackup(ts);
+  };
+
+
+  /* =============================
+     HELPERS
+  ============================= */
+
+  const checkInternet = async () => {
+    const state = await NetInfo.fetch();
+
+    if (!state.isConnected) {
+      throw new Error("NO_INTERNET");
+    }
+  };
+
+
+  const ensureSignedIn = async () => {
     let token = await getFreshAccessToken();
+
     if (!token) {
       await signInGoogle();
       token = await getFreshAccessToken();
     }
-    if (!token) throw new Error('Google auth failed');
-    return token;
-  }, []);
 
-const backupNow = useCallback(async () => {
-  setLoading(true);
-  try {
-    await ensureSignedIn();
-
-    const db = await initDB();
-
-    const hasClientsTable: boolean = await new Promise((resolve, reject) => {
-      db.transaction(tx => {
-        tx.executeSql(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='Clients';",
-          [],
-          (_, result) => resolve(result.rows.length > 0),
-          (_, error) => { reject(error); return true; }
-        );
-      });
-    });
-
-    if (!hasClientsTable) {
-      throw new Error('Таблица Clients не создана, бэкап невозможен');
+    if (!token) {
+      throw new Error("AUTH_FAILED");
     }
 
-    const { base64 } = await readDatabaseBase64();
+    await loadUser();
 
-    const now = new Date();
-    const filename = `backup_${now.toISOString().slice(0, 10)}_${now.getTime()}.db`;
-    await uploadBackupBase64(base64, filename);
-
-    const ts = new Date().toISOString();
-    await AsyncStorage.setItem(LAST_BACKUP_KEY, ts);
-    setLastBackup(ts);
-
-    console.log('Бэкап успешно создан:', filename);
-    return true;
-  } catch (err: any) {
-    console.error('backupNow error', err);
-    Alert.alert('Ошибка бэкапа', err.message ?? String(err));
-    throw err;
-  } finally {
-    setLoading(false);
-  }
-}, [ensureSignedIn]);
+    return token;
+  };
 
 
-const restoreLatest = useCallback(async () => {
-  setLoading(true);
-  try {
-    await ensureSignedIn();
+  /* =============================
+     BACKUP
+  ============================= */
 
-    const files = await listBackups();
-    if (!files?.length) throw new Error('No backups found');
+  const backupNow = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    const latestId = files[0].id;
-    const { base64, name } = await downloadBackup(latestId);
+    try {
+      await checkInternet();
 
-    console.log('Downloaded backup', name);
+      await ensureSignedIn();
 
-    await new Promise<void>((resolve, reject) => {
-      closeDB()
-        .then(() => resolve())
-        .catch(err => {
-          console.warn('closeDB failed, trying anyway', err);
-          resolve();
+      const db = await initDB();
+
+
+      // Проверка таблицы
+      const hasClients: boolean = await new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+          tx.executeSql(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='Clients';",
+            [],
+            (_, res) => resolve(res.rows.length > 0),
+            (_, err) => {
+              reject(err);
+              return true;
+            }
+          );
         });
-    });
+      });
 
-    await replaceDatabaseWith(base64);
-    console.log('Database replaced successfully');
+      if (!hasClients) {
+        throw new Error("NO_TABLE");
+      }
 
-    await initDB(true);
-  } catch (err: any) {
-    console.error('restoreLatest error', err);
-    Alert.alert('Ошибка восстановления', err.message ?? String(err));
-    throw err;
-  } finally {
-    setLoading(false);
-  }
-}, [dbName, ensureSignedIn]);
+
+      // Читаем базу
+      const { base64 } = await readDatabaseBase64();
+
+
+      const now = new Date();
+
+      const filename = `backup_${now.toISOString().slice(0, 10)}_${now.getTime()}.db`;
+
+
+      await uploadBackupBase64(base64, filename);
+
+
+      const ts = new Date().toISOString();
+
+      await AsyncStorage.setItem(LAST_BACKUP_KEY, ts);
+
+      setLastBackup(ts);
+
+      return true;
+
+    } catch (err: any) {
+      console.error("backup error", err);
+
+      const msg = normalizeError(err);
+
+      setError(msg);
+
+      throw new Error(msg);
+
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+
+  /* =============================
+     RESTORE
+  ============================= */
+
+  const restoreLatest = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await checkInternet();
+
+      await ensureSignedIn();
+
+
+      const files = await listBackups();
+
+      if (!files?.length) {
+        throw new Error("NO_BACKUPS");
+      }
+
+
+      const latest = files[0];
+
+      const { base64 } = await downloadBackup(latest.id);
+
+
+      await closeDB().catch(() => {});
+
+      await replaceDatabaseWith(base64);
+
+      await initDB(true);
+
+      return true;
+
+    } catch (err: any) {
+      console.error("restore error", err);
+
+      const msg = normalizeError(err);
+
+      setError(msg);
+
+      throw new Error(msg);
+
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+
+  /* =============================
+     LIST
+  ============================= */
 
   const getBackupList = useCallback(async () => {
+    await checkInternet();
+
     await ensureSignedIn();
+
     return listBackups();
-  }, [ensureSignedIn]);
+  }, []);
+
+
+  /* =============================
+     AUTH
+  ============================= */
+
+  const signIn = async () => {
+    await signInGoogle();
+    await loadUser();
+  };
+
+
+  const signOut = async () => {
+    await signOutGoogle();
+    setUser(null);
+  };
+
+
+  /* =============================
+     RETURN
+  ============================= */
 
   return {
     loading,
+    error,
+
+    user,
+    lastBackup,
+
     backupNow,
     restoreLatest,
     listBackups: getBackupList,
-    lastBackup,
+
+    signIn,
+    signOut,
   };
+}
+
+
+/* =============================
+   ERRORS
+============================= */
+
+function normalizeError(err: any): string {
+  if (!err) return "UNKNOWN_ERROR";
+
+
+  if (err.message === "NO_INTERNET") {
+    return "Нет подключения к интернету";
+  }
+
+  if (err.message === "AUTH_FAILED") {
+    return "Ошибка авторизации Google";
+  }
+
+  if (err.message === "NO_TABLE") {
+    return "База данных повреждена";
+  }
+
+  if (err.message === "NO_BACKUPS") {
+    return "Резервные копии не найдены";
+  }
+
+
+  if (
+    typeof err?.message === "string" &&
+    err.message.includes("storage")
+  ) {
+    return "Недостаточно места в Google Drive";
+  }
+
+
+  return err.message || "Неизвестная ошибка";
 }

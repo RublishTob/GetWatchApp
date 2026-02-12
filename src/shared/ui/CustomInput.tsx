@@ -29,7 +29,6 @@ import { useState } from "react";
             height:'100%',
             borderRadius: 10,
             fontSize:16,
-            margin:5,
             textAlignVertical: 'center',
         },
     });

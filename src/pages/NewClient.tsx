@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import ClientForm, { ClientFormFields } from "@features/ui/ClientForm";
+import ClientForm, { ClientFormFields } from "@/widgets/ClientForm";
 import { createOneClient } from "@/entities/Client/model/slice";
 import { useAppDispatch } from "@/app/store/hook";
 import { useDateConverter } from "@shared/hooks/useDataConverter";

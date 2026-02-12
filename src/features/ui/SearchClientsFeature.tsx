@@ -9,8 +9,8 @@ export const SearchClientsFeature = () => {
     const dispatch = useDispatch();
 return(
     <View style={{ flexDirection: 'row', columnGap:10, paddingLeft:10, paddingRight:10, width:'100%', height:'10%', backgroundColor: COLOR.primary, alignItems: "center", justifyContent: "center" }}>
-        <CustomInput onChangeText={(text)=>dispatch(setSearchQuery(text))} style={{width:"70%"}} />
-        <Button text="Поиск" style={{width:"30%" }} />
+        <CustomInput onChangeText={(text)=>dispatch(setSearchQuery(text))} style={{width:"70%", height:"50%"}} />
+        <Button text="Поиск" style={{width:"30%", height:"50%" }} />
     </View>
 )
 }

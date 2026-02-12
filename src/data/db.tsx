@@ -39,21 +39,6 @@ export async function initDB(restoreMode = false): Promise<SQLiteDatabase> {
     name: "getwatch.db",
     location: "default",
   });
-
-  if (!restoreMode) {
-    await createTables();
-
-    await AsyncStorage.clear();
-    const isSeeded = await AsyncStorage.getItem("db");
-    if (!isSeeded) {
-      console.log("▶ First launch — seeding database...");
-      await seedDatabase();
-      await AsyncStorage.setItem("db", "true");
-    } else {
-      console.log("✔ DB already seeded");
-    }
-  }
-
   return db;
 }
 

@@ -34,10 +34,10 @@ const IconFilter = (
             style={[
                     styles.button, 
                     style,
-                    active&&{ opacity: 1 }
+                    active && { borderColor:"#89c8e2ff", borderWidth:0.5, borderRadius:5 },
                 ]} 
                 onPress={onPress}>
-                <Image style={{width:"90%", height:"100%", aspectRatio: 1}} source={pathToImage}></Image>
+                <Image style={[styles.image, active && {opacity: 1 }]} source={pathToImage}></Image>
                 {text?.trim() && <Text style = {{fontSize:fontSizeText,color:colorText, marginTop:5}} numberOfLines={2}>{text}</Text>}
             </TouchableOpacity>
     );
@@ -49,9 +49,14 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         rowGap:5,
         width:"90%", 
-        height:"100%",
-        opacity: 0.6
+        height:"100%"
     },
+    image:{
+        width:"100%", 
+        height:"50%", 
+        aspectRatio: 1,
+        opacity: 0.2
+    }
 });
 
 export default IconFilter;
