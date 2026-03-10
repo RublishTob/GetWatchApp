@@ -1,17 +1,22 @@
-import {ReduxProvider} from "./providers/ReduxProvider";
-import {Navigation} from "./navigation/Navigation";
+import { ReduxProvider } from "./providers/ReduxProvider";
+import { EntryPointProvider } from "./providers/EntryPointProvider";
+import { Navigation } from "./navigation/Navigation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {StyleSheet} from 'react-native'
-import {useEffect} from 'react'
-import {COLOR} from '@shared/constants/colors'
+import { StyleSheet } from 'react-native'
+import { useEffect } from 'react'
+import { COLOR } from '@shared/constants/colors'
 import { ScreenProvider } from "@/shared/hooks/ScreenContext";
-import { useImmersiveMode} from "@/app/hooks/useImmersiveMode";
+import { useImmersiveMode } from "@/app/hooks/useImmersiveMode";
 import { configureGoogle } from '@/services/googleBackUp/googleAuth';
 import { initDB } from "@/data/db";
 import { autoBackupOncePerMonth } from "@/services/autoBackup/autoBackup"
 import { initBackupNotificationChannel } from "@/services/autoBackup/notifyBackUp"
-import {PaperProvider} from 'react-native-paper'
+import { PaperProvider } from 'react-native-paper'
+import { useAppDispatch, useAppSelector } from "@/app/store/hook";
+import { selectAllClients} from "@entities/Client/model/selectors"
+import { recalcWarrantyForClients } from "@features/model/recalculateWarranty"
+import { fetchClientsInfo } from "@/entities/Client/model/slice";
 
 
 export const App = () => {
@@ -30,7 +35,7 @@ export const App = () => {
           <SafeAreaView style={styles.container} edges={['top', 'left']}>
             <ScreenProvider>
               <PaperProvider>
-
+                <EntryPointProvider/>
                 <Navigation />
               </PaperProvider>
             </ScreenProvider>

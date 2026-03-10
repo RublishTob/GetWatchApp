@@ -1,5 +1,5 @@
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigationApp } from "@/features/hooks/useNavigationApp";
@@ -48,11 +48,15 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
         return new Date() <= warrantyEnd;
     };
 
-    const { control, handleSubmit, reset, setValue, formState: { isValid, isSubmitting } } =
+    const { control, handleSubmit, reset, setValue, getValues, formState: { isValid, isSubmitting } } =
         useForm<ClientFormFields>({
             resolver: yupResolver(clientYupSchema),
             mode: "onChange",
-            defaultValues: initialValues,
+            defaultValues: {
+                ...initialValues,
+                dateIn: initialValues.dateIn ?? new Date(),
+                dateOut: initialValues.dateOut ?? new Date(),
+            }
         });
 
     const dateOut = useWatch({ control, name: "dateOut" });
@@ -114,13 +118,21 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
                         <FormCheckBox style={{ flexDirection: "row", alignItems: "center", margin: 10, columnGap: 10 }}
                             backgroundColor="green" disabled={true} control={control} name="hasWarranty" label="Есть гарантия" />
                     </View>
-
-                    <FormDatePicker style={styles.form} control={control} name="dateIn" label="Дата приемки" />
-                    <FormDatePicker style={styles.form} control={control} name="dateOut" label="Дата выдачи" />
-
+                    <View style={{ flexDirection: "column", alignItems: "center",justifyContent:"center", rowGap: 1, marginBottom: 5 }}>
+                        <FormDatePicker style={{width:"90%"}} control={control} name="dateIn" label="Дата приемки" />
+                        <FormDatePicker style={{width:"90%"}} control={control} name="dateOut" label="Дата выдачи" />
+                        <Button
+                            style={{width:"90%", padding: 10}}
+                            text="Сброс даты приема/выдачи на текущую"
+                            onPress={() => {
+                                const today = new Date();
+                                setValue("dateIn", today, { shouldDirty: true });
+                                setValue("dateOut", today, { shouldDirty: true });
+                            }}
+                        />
                     {onDelete &&
                         <View>
-                            <Button text="Удалить" colorButton="#721414ff" onPress={deleteConfirm.ask} />
+                            <Button text="Удалить клиента" style={{width:"90%", padding: 10, margin: 10}} colorButton="#721414ff" onPress={deleteConfirm.ask} />
                             <ConfirmModal
                                 visible={deleteConfirm.open}
                                 title="Удалить клиента?"
@@ -131,6 +143,8 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
 
                         </View>
                     }
+                    </View>
+        
 
                 </ScrollView>
             </View>
@@ -143,7 +157,17 @@ const ClientForm = ({ initialValues, onSubmit, onDelete, submitText }: Props) =>
                         text="Меню" onPress={() => navigation.navigate("Home")} />
                 </View>
 
-                <Button style={styles.roundedButton} text="Сброс" onPress={() => reset(initialValues)} />
+                <Button style={styles.roundedButton} text="Сброс" onPress={() => {
+                    const currentDateIn = getValues("dateIn");
+                    const currentDateOut = getValues("dateOut");
+
+                    reset({
+                        ...initialValues,
+                        dateIn: currentDateIn,
+                        dateOut: currentDateOut,
+                    });
+                }}/>
+
 
                 <Button
                     style={styles.button}

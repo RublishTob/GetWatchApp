@@ -21,7 +21,7 @@ const IconFilter = (
         text,
         colorButton = "#48465eff",
         active,
-        fontSizeText = 8,
+        fontSizeText = 7,
         colorText = "#89c8e2ff",
         onPress,
         pathToImage

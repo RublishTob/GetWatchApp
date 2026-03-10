@@ -33,10 +33,6 @@ export const MenuWidget = ({height,width}:MenuListProp) => {
     ).start();
   }, []);
 
-    useEffect(() => {
-    dispatch(fetchClientsInfo());
-  }, []);
-
   const hasDelivery = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

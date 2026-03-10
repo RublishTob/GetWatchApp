@@ -20,6 +20,16 @@ const DatePicker: React.FC<ModernDatePickerProps> = ({ value, onChange }) => {
   const [text, setText] = useState<string>(value ? formatDate(value) : "");
   const [isPickerVisible, setPickerVisible] = useState(false);
 
+useEffect(() => {
+  setDate(value);
+
+  if (value) {
+    setText(formatDate(value));
+  } else {
+    setText("");
+  }
+}, [value]);
+
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   // -------- FORMATTING --------

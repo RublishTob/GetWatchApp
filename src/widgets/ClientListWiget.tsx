@@ -1,44 +1,72 @@
-import { View,FlatList,Text} from "react-native";
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { COLOR } from "@shared/constants/colors"
+import { View, Text } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { FlashList } from "@shopify/flash-list";
+import { COLOR } from "@shared/constants/colors";
 import { SelectClient } from "@/features";
 import { stylesCommon } from "@shared/styles/commonStyles";
-import { selectFilteredClients } from "@/features/model/selectedFilterdClients";
-import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "@/app/store/hook";
-import { selectClientId,updateClientPartial } from "@/entities/Client/model/slice";
-import { fetchClientsInfo } from "@/entities/Client/model/slice";
-import { useNavigationApp } from "@/features/hooks/useNavigationApp";
+import { Client } from "@/entities";
 
-interface ClientListProp{
-    height:number,
-    width:number
+import {
+  selectClientId,
+  updateClientPartial,
+  fetchClientsInfo,
+} from "@/entities/Client/model/slice";
+import { useNavigationApp } from "@/features/hooks/useNavigationApp";
+import { selectFilteredClients } from "@/features/model/selectedFilterdClients";
+
+interface ClientListProp {
+  height: number;
+  width: number;
 }
 
-export const ClientListWidget = ({height,width}:ClientListProp) => {
+export const ClientListWidget = ({ height, width }: ClientListProp) => {
   const [highlightId, setHighlightId] = useState<number | null>(null);
-  const allClients = useSelector(selectFilteredClients);
+
+  const allClients : Client[] = useAppSelector(selectFilteredClients);
   const dispatch = useAppDispatch();
   const navigation = useNavigationApp();
 
-  const handleGetId = (id: number) => {
+  const itemHeight = height * 0.3;
+
+  // 🔹 выбор клиента
+  const handleGetId = useCallback((id: number) => {
     setHighlightId((prev) => (prev === id ? null : id));
-  };
+  }, []);
 
-  const handleShowClientInfo = () => {
-    dispatch(selectClientId(highlightId));
-    navigation.navigate("ClientInfo");
-  };
+  // 🔹 переход
+  const handleShowClientInfo = useCallback(() => {
+    if (highlightId !== null) {
+      dispatch(selectClientId(highlightId));
+      navigation.navigate("ClientInfo");
+    }
+  }, [highlightId, dispatch, navigation]);
 
-    const changeAcceptedStatusOfClient = (id: number,accepted: boolean) => {
-    dispatch(updateClientPartial({id:id,accepted: accepted}));
-  };
+  // 🔹 статус
+  const changeAcceptedStatusOfClient = useCallback(
+    (id: number, accepted: boolean) => {
+      dispatch(updateClientPartial({ id, accepted }));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
-  dispatch(fetchClientsInfo());
-  console.log(allClients.length);
-}, []);
+    dispatch(fetchClientsInfo());
+  }, [dispatch]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Client }) => (
+      <SelectClient
+        item={item}
+        isSelected={item.id === highlightId}
+        onPress={handleGetId}
+        onShowInfo={handleShowClientInfo}
+        onChangeAccepted={changeAcceptedStatusOfClient}
+        height={itemHeight}
+      />
+    ),
+    [highlightId, handleGetId, handleShowClientInfo, changeAcceptedStatusOfClient]
+  );
 
   if (allClients.length === 0) {
     return (
@@ -52,31 +80,17 @@ export const ClientListWidget = ({height,width}:ClientListProp) => {
       </View>
     );
   }
-  const itemHeight = height * 0.3;
 
   return (
-    <View style={{ height, width }}>
-      <FlatList
-        style={{ flex: 1, backgroundColor: COLOR.primary }}
+    <View style={{ height, width, backgroundColor:"#222a37" }}>
+      <FlashList 
         data={allClients}
-        renderItem={({ item }) => (
-          <SelectClient
-            style={{
-              alignItems: 'center',
-              justifyContent: "space-between",
-              paddingHorizontal: 15,
-              height: itemHeight,
-              width: "100%",
-              backgroundColor: COLOR.primary,
-            }}
-            selectId={highlightId}
-            item={item}
-            handlePress={handleGetId}
-            pressToShowInfo={handleShowClientInfo}
-            changeAcceptedStatus={changeAcceptedStatusOfClient}
-          />
-        )}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        extraData={highlightId}
+
+        // 🔥 доп оптимизация
+        getItemType={() => "client"}
       />
     </View>
   );

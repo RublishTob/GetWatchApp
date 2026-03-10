@@ -1,23 +1,26 @@
 import { recalcHasWarranty } from "@/shared/hooks/recalcHasWarranty";
-import { updateClientsBulk} from "@/entities/Client/model/slice";
+import { updateClientsBulk } from "@/entities/Client/model/slice";
 import { Client } from "@/entities/Client/model/types";
 import { AppDispatch } from "@/app/store/Store";
 
-export async function recalcWarrantyForClients(
+export function recalcWarrantyForClients(
   clients: Client[],
   dispatch: AppDispatch
 ) {
-  const updates = [];
-  let i = 0;
+  if (!clients.length) return;
 
-  for (const c of clients) {
-    const newWarranty = recalcHasWarranty(c);
-    if (newWarranty !== c.hasWarranty) {
-      updates.push({ id: c.id, hasWarranty: newWarranty });
-    }
-    i++;
-    if (i % 2000 === 0) {
-      await new Promise(resolve => setTimeout(resolve));
+  const updates: { id: number; hasWarranty: boolean }[] = [];
+
+  for (let i = 0; i < clients.length; i++) {
+    const client = clients[i];
+
+    const newWarranty = recalcHasWarranty(client);
+
+    if (newWarranty !== client.hasWarranty) {
+      updates.push({
+        id: client.id,
+        hasWarranty: newWarranty,
+      });
     }
   }
 
